@@ -76,10 +76,13 @@ function scoreSystemThinking({ evidence, density, architecture, decisions }: Pil
 function scoreAuthenticity({ evidence, aiUsage, commits, humanJudgment }: PillarInputs): PillarScore {
   let s = 50;
   const notes: string[] = [];
+  // Positive reinforcement only: +25 when doc present. Absence is noted
+  // (suggestion engine surfaces it) but not penalised — personal-portfolio
+  // AI disclosure is still uncharted territory in 2026 (see
+  // validation/research/structured-inquiries-2026.md).
   if (aiUsage.docPresent) s += 25;
   else if (aiUsage.fingerprintConfidence > 0.3) {
-    notes.push("AI fingerprint signals detected; AI_USAGE.md missing");
-    s -= 5;
+    notes.push("AI fingerprint signals detected; AI_USAGE.md is a credibility opportunity");
   } else notes.push("no AI_USAGE.md or AI Usage section detected");
 
   if (commits.available) {

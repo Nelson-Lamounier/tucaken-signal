@@ -1,6 +1,6 @@
 {
   "name": "@tucaken/signal-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "license": "MIT",
   "description": "Portfolio trust-signal analyzer for engineering work in the 2026 hiring market. Classifies repos across 9 archetypes × 4 career stages, scores 5 hiring-signal pillars, and generates evidence-grounded recommendations.",

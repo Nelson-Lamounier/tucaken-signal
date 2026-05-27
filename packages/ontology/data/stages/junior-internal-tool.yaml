@@ -21,3 +21,14 @@ stage_specific_suggestions:
     trigger: ai_fingerprints_detected_or_recent
     impact: 0.7
     effort: 0.15
+  - id: learning_journey_doc
+    pillar: readability
+    title: "Add a 'What I Learned' section to the README"
+    description: >
+      Juniors-specific signal validated in 2026 portfolio advice
+      (DEV.to / Hashnode / r/cscareerquestions): document the
+      problems you hit and what you'd do differently. Converts a
+      project from "thing I built" into "evidence of how I think".
+    trigger: any
+    impact: 0.7
+    effort: 0.15

@@ -49,6 +49,29 @@ yarn install && yarn build
 yarn cli .
 ```
 
+## How this differs from other GitHub portfolio analyzers
+
+Two commodity tools shipped in 2026 that send your repo to a cloud LLM
+and return a "recruiter score" with generic suggestions. Tucaken Signal
+is structurally different:
+
+| | Commodity LLM analyzers | Tucaken Signal |
+|---|---|---|
+| **Where your code goes** | Uploaded to a cloud LLM | Stays on your machine (local-first) |
+| **How suggestions are generated** | LLM creative writing | Static analysis + evidence extraction from your repo |
+| **Reproducibility** | Different output every run | Same repo → same report (deterministic) |
+| **Career-stage awareness** | None — one size fits all | Junior / mid / senior / staff routing with different rubrics |
+| **Structure** | Free-form prose | 9 archetypes × 4 stages × 5 hiring-signal pillars |
+| **Evidence grounding** | "We suggest you add X" | "Your repo at `path/to/file` shows X — here's a draft" |
+| **Privacy posture** | Code uploaded; subject to vendor TOS | Default offline; raw code never leaves your machine |
+| **Cost to run** | LLM tokens per analysis | Free (no LLM required) |
+| **Optional GitHub signals** | n/a | Opt-in `--with-github` for stage signal lift (BYOK, direct to api.github.com) |
+
+The trade-off is honest: commodity tools give you LLM-quality prose
+recommendations at the cost of shipping your code to a third party.
+Tucaken Signal gives you deterministic, evidence-grounded analysis with
+your code never leaving your machine, at the cost of less prose flair.
+
 ## The 0.75 confidence gate is the load-bearing UX safety net
 
 Rule-based stage inference on real repositories hits **~45% raw

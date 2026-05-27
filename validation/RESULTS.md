@@ -3,6 +3,62 @@
 Living document. Updated each time the harness runs against the public
 fixture sets.
 
+## Validation strategy (2026-05-27, v0.1.2)
+
+The original spec called for engineer interviews against 5 candidates to
+validate the AI-transparency pillar's framing. After review, that
+validation has been **substituted with a two-part approach** for the v1.0
+ship and deferred to v1.1 once real users are generating signal:
+
+1. **Structured web research (done):** five predict-then-search-then-document
+   inquiries against 2026 published data on AI disclosure, hiring practices,
+   competitive landscape, junior/senior portfolio norms. Synthesised in
+   [validation/research/structured-inquiries-2026.md](research/structured-inquiries-2026.md).
+   Outcome: stronger validation of the AI-transparency pillar than expected
+   (71% of engineering leaders + "explain how you used AI" being the
+   live-interview equivalent of AI_USAGE.md), plus two product gaps surfaced
+   (learning-trajectory docs for juniors, AI-velocity quantification for staff).
+2. **Soft beta of 10–15 engineers (pending action by Nelson):** low-friction
+   "use this and send one paragraph if anything surprises you" ask to
+   network. Closes 3 of 4 gaps left by deferring formal interviews
+   (emotional reactions to specific output, blind-spot surfacing,
+   early-adopter cohort). Pack at [validation/soft-beta/](soft-beta/).
+
+Engineer-interview pack remains in [validation/interviews/](interviews/)
+unchanged, scheduled to run in v1.1 with real users where the questions
+to ask will be sharper.
+
+## v0.1.2 product changes from web-research evidence
+
+- Dropped the `-5` penalty in `scoreAuthenticity()` when AI fingerprints
+  detected but no `AI_USAGE.md` present. Personal-portfolio AI disclosure
+  is uncharted territory in 2026 — penalising it would have been ahead
+  of the discourse. `+25` bonus when the doc IS present is retained.
+- Reframed the AI_USAGE.md suggestion to lead with "71% of engineering
+  leaders say AI is making candidate assessment harder; many teams now
+  ask candidates to explain how they used AI — this is the asynchronous
+  version of that." Differentiation, not compliance.
+- Added `learning_journey_doc` suggestion template to all 9 junior stage
+  overlays. Web research confirmed this is a juniors-specific signal
+  the spec mentioned but had no template for.
+- Added competitive-differentiation section to README. Two commodity
+  LLM-pump GitHub analyzers exist in 2026; Tucaken's local-first,
+  evidence-grounded, deterministic, stage-aware positioning is sharper
+  than the spec implied.
+
+## v1.1 candidates from research
+
+- **AI-velocity quantification suggestion** for staff stage. 2026 staff
+  resumes lead with quantified AI-leverage; nobody in static-analysis
+  surfaces this yet.
+- **`suggestion_surfaced` / `suggestion_accepted` telemetry events** so
+  acceptance rate becomes the real post-launch validation signal.
+  Currently watching `authenticity.ai_usage_doc` specifically — if
+  <30% acceptance after 100 users, the framing was wrong despite web
+  evidence; if >60%, retroactively validated.
+
+
+
 ## 🎯 Final headline (2026-05-27, v14 — final this session)
 
 | Measurement | Static only | +GitHub (BYOK) | Gate | Status |

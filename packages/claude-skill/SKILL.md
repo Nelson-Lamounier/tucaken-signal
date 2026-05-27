@@ -14,6 +14,25 @@ description: |
 Use this skill when the user asks for portfolio improvements, hiring-signal
 analysis, a recruiter-perspective view of a repo, or runs `/tucaken-signal`.
 
+## Step 0 — Verify the CLI is installed
+
+The skill shells out to `tucaken-signal`. Before any analysis step, verify
+the binary is on PATH:
+
+```bash
+command -v tucaken-signal >/dev/null || echo "MISSING"
+```
+
+If `MISSING`, tell the user one-line:
+
+```bash
+npm install -g @tucaken/signal-cli@latest
+```
+
+Wait for them to run it. Do NOT attempt analysis until the binary
+resolves. (The CLI prints a helpful banner if invoked without args, so
+running `tucaken-signal` once after install also validates.)
+
 ## Step 1 — Determine the target career stage
 
 If the user provided a stage (junior/mid/senior/staff), pass it through. Otherwise:

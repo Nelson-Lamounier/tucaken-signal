@@ -8,16 +8,45 @@ career stages, scores it on 5 hiring-signal pillars, and generates
 evidence-grounded recommendations that make invisible engineering depth
 visible in a 55-second recruiter scan.
 
+## Install
+
 ```bash
-yarn install
-yarn build
-yarn cli .                        # full analysis of cwd
-yarn cli preview .                # 55-second recruiter simulation
-yarn cli preview . --animate      # paced reveal
-yarn cli compare-stages .         # same repo across junior/mid/senior/staff
-yarn cli --format=md .            # markdown report
-yarn cli draft <suggestion-id>    # accept-ready draft for a suggestion
-yarn cli apply <id> --branch=docs/signal-improvements   # write into repo + branch + commit
+npm install -g @tucaken/signal-cli@latest
+```
+
+Or run any command with:
+
+```bash
+tucaken-signal .                        # full analysis of cwd
+tucaken-signal preview .                # 55-second recruiter simulation
+tucaken-signal preview . --animate      # paced reveal
+tucaken-signal compare-stages .         # same repo across junior/mid/senior/staff
+tucaken-signal --format=md .            # markdown report
+tucaken-signal draft <suggestion-id>    # accept-ready draft
+tucaken-signal apply <id> --branch=docs/signal-improvements   # write draft + commit
+```
+
+### Claude Code skill
+
+```bash
+mkdir -p ~/.claude/skills
+git clone https://github.com/Nelson-Lamounier/tucaken-signal /tmp/_t \
+  && cp -r /tmp/_t/packages/claude-skill ~/.claude/skills/tucaken-signal \
+  && rm -rf /tmp/_t
+# Then in any Claude Code session: /tucaken-signal
+```
+
+### MCP server (Claude Code, Cursor, Codex CLI)
+
+```bash
+claude mcp add tucaken-signal npx -y @tucaken/signal-mcp
+```
+
+### From source (dev)
+
+```bash
+yarn install && yarn build
+yarn cli .
 ```
 
 ## The 0.75 confidence gate is the load-bearing UX safety net

@@ -57,14 +57,14 @@ jobs:
       - name: Install dependencies (yarn 4)
         run: yarn install --immutable
 
+      - name: Build all packages
+        run: yarn build
+
       - name: Typecheck
         run: yarn typecheck
 
       - name: Test
         run: yarn test
-
-      - name: Build all packages
-        run: yarn build
 
       # ----- Publish in dependency order -----
       # Yarn 4 rewrites `workspace:*` to the actual version at pack time.

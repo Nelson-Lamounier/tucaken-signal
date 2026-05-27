@@ -14,14 +14,14 @@
     "static-analysis",
     "ai-disclosure"
   ],
-  "homepage": "https://github.com/tucaken/signal",
+  "homepage": "https://github.com/Nelson-Lamounier/tucaken-signal",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tucaken/signal.git",
+    "url": "git+https://github.com/Nelson-Lamounier/tucaken-signal.git",
     "directory": "packages/signal-cli"
   },
   "bugs": {
-    "url": "https://github.com/tucaken/signal/issues"
+    "url": "https://github.com/Nelson-Lamounier/tucaken-signal/issues"
   },
   "publishConfig": {
     "access": "public"

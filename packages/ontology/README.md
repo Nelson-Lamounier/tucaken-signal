@@ -33,4 +33,4 @@ const def = yaml.parse(readFileSync(path, "utf8"));
 
 PRs welcome for new archetypes, stage definitions, or suggestion
 templates. Quality-gated by maintainers — see
-<https://github.com/tucaken/signal/blob/main/packages/ontology/CONTRIBUTING.md>.
+<https://github.com/Nelson-Lamounier/tucaken-signal/blob/main/packages/ontology/CONTRIBUTING.md>.

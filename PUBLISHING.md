@@ -14,7 +14,7 @@ not skip steps.
 4. **All tests green:** `yarn test` from monorepo root.
 5. **Clean working tree:** `git status` must show no uncommitted
    changes. (Tag will point at HEAD.)
-6. **README links resolve.** Replace the `https://github.com/tucaken/signal`
+6. **README links resolve.** Replace the `https://github.com/Nelson-Lamounier/tucaken-signal`
    URLs in `packages/*/package.json` if the actual repo is at a
    different URL.
 
@@ -134,7 +134,7 @@ registry.
 ## Pre-publish blockers (current)
 
 - ⚠ `@tucaken` npm scope: not verified to exist
-- ⚠ `github.com/tucaken/signal` URL: placeholder; replace before publish
+- ⚠ `github.com/Nelson-Lamounier/tucaken-signal` URL: placeholder; replace before publish
 - ⚠ AI-transparency engineer interviews: not yet done (validation gate)
 - ⚠ Junior/mid private fixtures: labels are tool-inferred, awaiting
   human ground-truth review

@@ -11,14 +11,14 @@
     "portfolio",
     "claude-code"
   ],
-  "homepage": "https://github.com/tucaken/signal/tree/main/packages/mcp-server",
+  "homepage": "https://github.com/Nelson-Lamounier/tucaken-signal/tree/main/packages/mcp-server",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tucaken/signal.git",
+    "url": "git+https://github.com/Nelson-Lamounier/tucaken-signal.git",
     "directory": "packages/mcp-server"
   },
   "bugs": {
-    "url": "https://github.com/tucaken/signal/issues"
+    "url": "https://github.com/Nelson-Lamounier/tucaken-signal/issues"
   },
   "publishConfig": {
     "access": "public"

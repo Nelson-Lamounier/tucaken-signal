@@ -39,6 +39,6 @@ console.log(report.overallScore);
 
 ## Links
 
-- Full spec: <https://github.com/tucaken/signal>
-- Validation results: <https://github.com/tucaken/signal/blob/main/validation/RESULTS.md>
+- Full spec: <https://github.com/Nelson-Lamounier/tucaken-signal>
+- Validation results: <https://github.com/Nelson-Lamounier/tucaken-signal/blob/main/validation/RESULTS.md>
 - MIT licensed

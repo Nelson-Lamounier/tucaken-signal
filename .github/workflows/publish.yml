@@ -2,20 +2,13 @@
 # Publish to npm — monorepo, 3 packages in dependency order
 # =============================================================================
 #
-# Modeled on the cdk-scripts/publish.yml pattern. Differences:
-#   - Yarn 4 (corepack) instead of npm install
-#   - 3 packages to publish, in dependency order:
-#       @tucaken/ontology -> @tucaken/signal-cli -> @tucaken/signal-mcp
+# Uses `yarn npm publish` (yarn 4) which rewrites `workspace:*` deps to the
+# actual version. Plain `npm publish` ships workspace:* through unchanged
+# and `npm install -g` then fails with EUNSUPPORTEDPROTOCOL.
 #
-# Trigger: push a tag matching `v*` (e.g. `v0.1.0`) OR workflow_dispatch.
-# Tag-only triggers avoid accidental publishes from feature branches.
-#
-# Security: no user-controlled inputs in `run:` steps. Workflow uses only
-# `github.ref` (tag name) and secrets. Safe against injection.
-#
-# Secrets required:
-#   - NPM_TOKEN  — automation token from npmjs.com with publish rights
-#                  on the @tucaken scope (set via `gh secret set NPM_TOKEN`)
+# Trigger: push a tag matching `v*` OR workflow_dispatch.
+# Security: no user-controlled inputs in run: steps.
+# Secrets: NPM_TOKEN (set on the npm-publish environment).
 # =============================================================================
 
 name: Publish
@@ -28,7 +21,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write   # for npm provenance attestations
+  id-token: write
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -67,29 +60,29 @@ jobs:
         run: yarn test
 
       # ----- Publish in dependency order -----
-      # Yarn 4 rewrites `workspace:*` to the actual version at pack time.
+      # `yarn npm publish` rewrites workspace:* → real version before pack.
+      # YARN_NPM_AUTH_TOKEN auths yarn 4 against the registry.
 
       - name: Publish @tucaken/ontology
         working-directory: packages/ontology
-        run: npm publish --access public --provenance
+        run: yarn npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @tucaken/signal-cli
         working-directory: packages/signal-cli
-        run: npm publish --access public --provenance
+        run: yarn npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @tucaken/signal-mcp
         working-directory: packages/mcp-server
-        run: npm publish --access public --provenance
+        run: yarn npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish Summary
         env:
-          # Reads from committed package.json (no untrusted input)
           PKG_JSON_PATH: packages/signal-cli/package.json
         run: |
           VERSION=$(node -p "require('./${PKG_JSON_PATH}').version")

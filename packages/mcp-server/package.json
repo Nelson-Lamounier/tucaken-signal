@@ -1,6 +1,6 @@
 {
   "name": "@tucaken/signal-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "license": "MIT",
   "description": "MCP server companion for Tucaken Signal. Exposes analyze_local_repo + Tucaken-authenticated account state to host agents (Claude Code, Cursor, Codex CLI).",

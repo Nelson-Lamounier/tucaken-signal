@@ -1,0 +1,24 @@
+stage: senior
+archetype: ml_research
+priority_sections: [hero, methodology, results, design_decisions, reproducibility, limitations]
+priority_artifacts: [adrs, model_card, dataset_card]
+required_pillars: [system_thinking, production_reality]
+stage_specific_suggestions:
+  - id: model_card
+    pillar: system_thinking
+    title: "Add a model card (architecture, training data, intended use, limitations)"
+    description: >
+      Senior ML signal: you've thought about misuse, bias, edge cases.
+      Model card is the canonical artifact.
+    trigger: any
+    impact: 0.9
+    effort: 0.5
+  - id: experiment_tracking
+    pillar: production_reality
+    title: "Surface experiment tracking (W&B / MLflow / sacred)"
+    description: >
+      Reproducibility at senior level means runs, configs, and metrics
+      are queryable, not buried in notebooks.
+    trigger: any
+    impact: 0.75
+    effort: 0.4

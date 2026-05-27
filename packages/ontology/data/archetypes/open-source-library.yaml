@@ -1,0 +1,37 @@
+id: open_source_library
+name: "Open-Source Library"
+description: >
+  A published package consumed by other projects as an API/SDK.
+
+classification_signals:
+  required_any:
+    - has_package_publish_config
+    - has_pyproject_publish
+  positive:
+    - has_license
+    - has_changelog
+    - has_examples_dir
+    - has_api_docs
+  negative:
+    - has_deployment_workflow
+    - has_iac
+
+expected_sections:
+  - hero
+  - installation
+  - usage
+  - api_reference
+  - contributing
+  - changelog
+
+expected_artifacts:
+  - readme_install_block
+  - license_file
+  - changelog_file
+
+pillar_weights:
+  authenticity: 0.20
+  readability: 0.30
+  system_thinking: 0.20
+  production_reality: 0.15
+  stage_calibration: 0.15

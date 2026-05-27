@@ -1,0 +1,36 @@
+id: mobile_app
+name: "Mobile App"
+description: >
+  iOS / Android / React Native / Flutter mobile application.
+
+classification_signals:
+  required_any:
+    - has_ios_dir
+    - has_android_dir
+    - has_root_android_app   # gradle-at-root, no `android/` wrapper
+    - has_root_ios_app       # Podfile/Package.swift/.xcodeproj at root
+    - has_xamarin_mobile     # .NET MAUI / Xamarin (.sln + src/iOS.*/Android.*)
+    - has_react_native
+    - has_flutter_pubspec
+    - has_expo_config
+  positive:
+    - has_screenshots_dir
+    - has_app_store_link
+  negative: []
+
+expected_sections:
+  - hero
+  - screenshots
+  - architecture
+  - build_and_run
+
+expected_artifacts:
+  - readme_screenshot
+  - store_link
+
+pillar_weights:
+  authenticity: 0.20
+  readability: 0.30
+  system_thinking: 0.20
+  production_reality: 0.20
+  stage_calibration: 0.10

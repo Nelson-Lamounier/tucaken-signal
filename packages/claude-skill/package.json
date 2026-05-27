@@ -1,0 +1,14 @@
+{
+  "name": "@tucaken/signal-claude-skill",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Claude Code skill adapter for tucaken-signal.",
+  "files": [
+    "SKILL.md"
+  ],
+  "scripts": {
+    "build": "echo 'skill is markdown-only'",
+    "typecheck": "echo 'no ts'",
+    "test": "echo 'no tests'"
+  }
+}

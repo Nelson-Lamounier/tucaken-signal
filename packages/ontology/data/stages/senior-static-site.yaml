@@ -1,0 +1,15 @@
+stage: senior
+archetype: static_site
+priority_sections: [hero, getting_started, structure, design_decisions, performance]
+priority_artifacts: [readme_demo_link, lighthouse_scores]
+required_pillars: [readability, production_reality]
+stage_specific_suggestions:
+  - id: perf_story
+    pillar: production_reality
+    title: "Add a performance / Lighthouse story"
+    description: >
+      Senior frontend / static-site signal: measured, optimized, documented.
+      Score numbers beat \"it's fast\".
+    trigger: any
+    impact: 0.8
+    effort: 0.3

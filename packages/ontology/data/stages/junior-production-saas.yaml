@@ -1,0 +1,41 @@
+stage: junior
+archetype: production_saas
+
+priority_sections:
+  - hero
+  - getting_started
+  - architecture
+  - deployment
+  - ai_usage
+  - learning_journey
+
+priority_artifacts:
+  - readme_demo_link
+  - production_deployment_evidence
+
+deemphasized_sections:
+  - design_decisions
+
+required_pillars:
+  - authenticity
+  - production_reality
+
+stage_specific_suggestions:
+  - id: ai_transparency_section
+    pillar: authenticity
+    title: "Add an AI Usage section to your README"
+    description: >
+      In 2026, transparent AI usage is more credible than denied AI usage.
+      Document which parts used AI, what you overrode, what you verified.
+    trigger: ai_fingerprints_detected_or_recent
+    impact: 0.8
+    effort: 0.2
+  - id: deployment_proof
+    pillar: production_reality
+    title: "Make your deployment proof visible in the README"
+    description: >
+      Live URL + uptime + 'how it's deployed' beats three tutorial-shaped
+      projects on a junior resume.
+    trigger: has_deployment_evidence_not_in_readme
+    impact: 0.9
+    effort: 0.15

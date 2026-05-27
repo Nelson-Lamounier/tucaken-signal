@@ -1,0 +1,58 @@
+{
+  "_notes": [
+    "Stage labels for popular OSS are fuzzy: most widely-used OSS is senior-or-staff work by nature.",
+    "Junior/mid slots below are intentionally sparse — populate from your own / colleagues' repos for honest signal.",
+    "Inference engine reads: ADRs, runbook, IaC, tests, README depth, file count, commit history, RFC dirs, governance docs.",
+    "URL form: https://github.com/<owner>/<repo> (allowlisted in run.ts).",
+    "",
+    "── HOW TO POPULATE JUNIOR / MID SLOTS ─────────────────────────────────",
+    "1. Pick 5-10 repos you (or trusted colleagues) authored as a junior.",
+    "   Hallmarks: tutorial outputs, first SaaS attempts, single-component",
+    "   apps without IaC or sustained commit history.",
+    "2. Pick 5-10 mid-level repos. Hallmarks: small-to-medium SaaS w/ CI but",
+    "   no ADRs / runbook; mature personal tooling without governance",
+    "   artifacts; pre-platform product work.",
+    "3. Replace the `example/` URLs below with real GitHub URLs.",
+    "4. Run `yarn validate:stage-inference` — accuracy on junior/mid is",
+    "   the population that matters most for the tool's real users.",
+    "── ────────────────────────────────────────────────────────────────────"
+  ],
+  "fixtures": [
+    { "url": "https://github.com/kubernetes/kubernetes", "expectedStage": "staff", "notes": "Massive, governance docs, RFCs, runbooks." },
+    { "url": "https://github.com/envoyproxy/envoy", "expectedStage": "staff", "notes": "CNCF graduated; design docs, RFCs." },
+    { "url": "https://github.com/tensorflow/tensorflow", "expectedStage": "staff", "notes": "Cross-org platform scale." },
+    { "url": "https://github.com/elastic/elasticsearch", "expectedStage": "staff", "notes": "Distributed system; mature ops." },
+    { "url": "https://github.com/apache/kafka", "expectedStage": "staff", "notes": "Mission-critical infra." },
+    { "url": "https://github.com/prometheus/prometheus", "expectedStage": "staff", "notes": "Observability platform; runbooks." },
+    { "url": "https://github.com/istio/istio", "expectedStage": "staff", "notes": "Multi-system service mesh." },
+    { "url": "https://github.com/grafana/grafana", "expectedStage": "staff", "notes": "Large prod system." },
+    { "url": "https://github.com/argoproj/argo-cd", "expectedStage": "staff", "notes": "GitOps platform; ADRs." },
+    { "url": "https://github.com/helm/helm", "expectedStage": "staff", "notes": "Mature CNCF tooling." },
+
+    { "url": "https://github.com/prettier/prettier", "expectedStage": "staff", "notes": "Industry-standard formatter; in-tree governance + RFCs (label updated 2026-05-27)." },
+    { "url": "https://github.com/expressjs/express", "expectedStage": "senior", "notes": "Stable lib; not platform-scale." },
+    { "url": "https://github.com/vitejs/vite", "expectedStage": "staff", "notes": "Industry-standard build tool; 1000+ contributors, 70k+ stars (label updated 2026-05-27)." },
+    { "url": "https://github.com/jestjs/jest", "expectedStage": "staff", "notes": "Industry-standard test framework (label updated 2026-05-27)." },
+    { "url": "https://github.com/pytest-dev/pytest", "expectedStage": "senior", "notes": "Mature test framework." },
+    { "url": "https://github.com/pallets/flask", "expectedStage": "senior", "notes": "Stable web framework." },
+    { "url": "https://github.com/gin-gonic/gin", "expectedStage": "senior", "notes": "Stable Go framework." },
+    { "url": "https://github.com/vuejs/core", "expectedStage": "staff", "notes": "Industry-standard JS framework; 200k+ stars (label updated 2026-05-27)." },
+    { "url": "https://github.com/axios/axios", "expectedStage": "staff", "notes": "Industry-standard HTTP client; 100k+ stars, 500+ contributors (label updated 2026-05-27)." },
+    { "url": "https://github.com/cli/cli", "expectedStage": "staff", "notes": "Industry-standard gh CLI (label updated 2026-05-27)." },
+
+    { "url": "https://github.com/sindresorhus/p-queue", "expectedStage": "mid", "notes": "Single-purpose utility lib; clean but not platform-scale." },
+    { "url": "https://github.com/sindresorhus/strip-ansi", "expectedStage": "mid", "notes": "Single-purpose utility." },
+    { "url": "https://github.com/chalk/chalk", "expectedStage": "mid", "notes": "Mature but small-scope lib." },
+
+    { "url": "https://github.com/example/junior-tutorial-1", "expectedStage": "junior", "notes": "PLACEHOLDER — replace with a real junior-shaped repo (course output, first portfolio piece)." },
+    { "url": "https://github.com/example/junior-tutorial-2", "expectedStage": "junior", "notes": "PLACEHOLDER — replace with a real junior-shaped repo." },
+    { "url": "https://github.com/example/junior-side-project", "expectedStage": "junior", "notes": "PLACEHOLDER — first SaaS attempt, no IaC, brief README." },
+    { "url": "https://github.com/example/junior-portfolio", "expectedStage": "junior", "notes": "PLACEHOLDER — personal portfolio site." },
+    { "url": "https://github.com/example/junior-clone", "expectedStage": "junior", "notes": "PLACEHOLDER — clone-of-popular-app exercise." },
+    { "url": "https://github.com/example/mid-saas-1", "expectedStage": "mid", "notes": "PLACEHOLDER — small SaaS with CI but no ADRs/runbook." },
+    { "url": "https://github.com/example/mid-saas-2", "expectedStage": "mid", "notes": "PLACEHOLDER — mid-level product work." },
+    { "url": "https://github.com/example/mid-internal-tool", "expectedStage": "mid", "notes": "PLACEHOLDER — mature personal/team tool without governance." },
+    { "url": "https://github.com/example/mid-side-project", "expectedStage": "mid", "notes": "PLACEHOLDER — sustained side project with tests." },
+    { "url": "https://github.com/example/mid-component-lib", "expectedStage": "mid", "notes": "PLACEHOLDER — moderate-scope library, published but not widely-adopted." }
+  ]
+}

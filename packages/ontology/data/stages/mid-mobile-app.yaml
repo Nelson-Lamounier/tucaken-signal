@@ -1,0 +1,15 @@
+stage: mid
+archetype: mobile_app
+priority_sections: [hero, screenshots, architecture, build_and_run]
+priority_artifacts: [readme_screenshot, store_link]
+required_pillars: [readability, production_reality]
+stage_specific_suggestions:
+  - id: screenshots_above_fold
+    pillar: readability
+    title: "Put screenshots above the fold"
+    description: >
+      Mobile-app repos without screenshots underrepresent the work
+      entirely. Even 2-3 images convert the repo from text to artifact.
+    trigger: no_screenshots
+    impact: 0.95
+    effort: 0.15

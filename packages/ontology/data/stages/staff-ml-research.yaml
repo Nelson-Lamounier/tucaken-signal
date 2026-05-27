@@ -1,0 +1,15 @@
+stage: staff
+archetype: ml_research
+priority_sections: [hero, methodology, ecosystem_impact, design_decisions, limitations]
+priority_artifacts: [rfc_documents, model_card]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: ecosystem_impact
+    pillar: system_thinking
+    title: "Frame the work in research/industry ecosystem context"
+    description: >
+      Staff ML signal: where this fits in existing literature / production
+      systems, what it changes, what's still open.
+    trigger: any
+    impact: 0.9
+    effort: 0.5

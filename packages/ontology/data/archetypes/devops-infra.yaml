@@ -1,0 +1,34 @@
+id: devops_infra
+name: "DevOps / Infrastructure Repository"
+description: >
+  Repository whose primary artifact is infrastructure-as-code, Kubernetes
+  manifests, or CI/CD configuration.
+
+classification_signals:
+  required_any:
+    - has_iac
+    - has_k8s_manifests
+  positive:
+    - has_helm_chart
+    - has_argocd_apps
+    - has_monitoring_config
+  negative: []
+
+expected_sections:
+  - hero
+  - architecture
+  - deployment
+  - operational_practices
+  - runbook
+
+expected_artifacts:
+  - architecture_diagram
+  - runbook
+  - rfc_documents
+
+pillar_weights:
+  authenticity: 0.15
+  readability: 0.20
+  system_thinking: 0.30
+  production_reality: 0.25
+  stage_calibration: 0.10

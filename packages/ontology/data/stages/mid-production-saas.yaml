@@ -1,0 +1,37 @@
+stage: mid
+archetype: production_saas
+
+priority_sections:
+  - hero
+  - architecture
+  - deployment
+  - design_decisions
+  - testing
+
+priority_artifacts:
+  - architecture_diagram
+  - adrs
+
+required_pillars:
+  - system_thinking
+  - production_reality
+
+stage_specific_suggestions:
+  - id: architecture_diagram_missing
+    pillar: system_thinking
+    title: "Add a system architecture diagram"
+    description: >
+      Mid-level engineers are evaluated on systems thinking. A diagram
+      converts invisible work into a 5-second visual signal.
+    trigger: no_architecture_diagram
+    impact: 0.85
+    effort: 0.3
+  - id: adr_starter
+    pillar: system_thinking
+    title: "Document 2-3 architectural decisions as ADRs"
+    description: >
+      Detected significant technology choices. Document why you chose them
+      over alternatives.
+    trigger: significant_architectural_choices_detected_and_no_adrs
+    impact: 0.75
+    effort: 0.4

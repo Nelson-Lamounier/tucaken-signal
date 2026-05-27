@@ -1,0 +1,58 @@
+{
+  "name": "@tucaken/ontology",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Repo-shape ontology used by Tucaken Signal. 9 archetypes × 4 career stages, with pillar weights and per-stage suggestion templates. MIT — fork and extend.",
+  "keywords": [
+    "ontology",
+    "portfolio",
+    "hiring",
+    "tucaken",
+    "archetypes",
+    "career-stages"
+  ],
+  "homepage": "https://github.com/tucaken/signal/tree/main/packages/ontology",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tucaken/signal.git",
+    "directory": "packages/ontology"
+  },
+  "bugs": {
+    "url": "https://github.com/tucaken/signal/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./data/*": "./data/*"
+  },
+  "files": [
+    "dist",
+    "data",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "yarn build"
+  },
+  "dependencies": {
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}

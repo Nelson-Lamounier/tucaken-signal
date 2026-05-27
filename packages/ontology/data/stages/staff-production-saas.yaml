@@ -1,0 +1,27 @@
+stage: staff
+archetype: production_saas
+
+priority_sections:
+  - architecture
+  - design_decisions
+  - cross_system_reasoning
+  - operational_practices
+
+priority_artifacts:
+  - rfc_documents
+  - adrs
+  - runbook
+
+required_pillars:
+  - system_thinking
+
+stage_specific_suggestions:
+  - id: cross_system_rfc
+    pillar: system_thinking
+    title: "Add an RFC linking this repo to broader system context"
+    description: >
+      Staff+ evaluation hinges on multi-system reasoning and organizational
+      impact. Show how this component fits a larger picture.
+    trigger: any
+    impact: 0.9
+    effort: 0.6

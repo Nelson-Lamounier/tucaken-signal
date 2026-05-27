@@ -1,0 +1,16 @@
+stage: mid
+archetype: devops_infra
+priority_sections: [hero, architecture, deployment, operational_practices, runbook]
+priority_artifacts: [architecture_diagram, runbook]
+required_pillars: [system_thinking, production_reality]
+stage_specific_suggestions:
+  - id: ops_runbook
+    pillar: production_reality
+    title: "Add an operational runbook"
+    description: >
+      Infra repos without a runbook read as code dumps. A short runbook
+      (deploy, rollback, common failure modes) is the difference between
+      \"I write Helm\" and \"I operate Helm in production\".
+    trigger: no_runbook
+    impact: 0.9
+    effort: 0.4

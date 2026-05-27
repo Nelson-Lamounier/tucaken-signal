@@ -1,0 +1,106 @@
+# =============================================================================
+# Publish to npm — monorepo, 3 packages in dependency order
+# =============================================================================
+#
+# Modeled on the cdk-scripts/publish.yml pattern. Differences:
+#   - Yarn 4 (corepack) instead of npm install
+#   - 3 packages to publish, in dependency order:
+#       @tucaken/ontology -> @tucaken/signal-cli -> @tucaken/signal-mcp
+#
+# Trigger: push a tag matching `v*` (e.g. `v0.1.0`) OR workflow_dispatch.
+# Tag-only triggers avoid accidental publishes from feature branches.
+#
+# Security: no user-controlled inputs in `run:` steps. Workflow uses only
+# `github.ref` (tag name) and secrets. Safe against injection.
+#
+# Secrets required:
+#   - NPM_TOKEN  — automation token from npmjs.com with publish rights
+#                  on the @tucaken scope (set via `gh secret set NPM_TOKEN`)
+# =============================================================================
+
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write   # for npm provenance attestations
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: 'Publish @tucaken/* to npm'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm-publish
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Setup Node + npm registry auth
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies (yarn 4)
+        run: yarn install --immutable
+
+      - name: Typecheck
+        run: yarn typecheck
+
+      - name: Test
+        run: yarn test
+
+      - name: Build all packages
+        run: yarn build
+
+      # ----- Publish in dependency order -----
+      # Yarn 4 rewrites `workspace:*` to the actual version at pack time.
+
+      - name: Publish @tucaken/ontology
+        working-directory: packages/ontology
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @tucaken/signal-cli
+        working-directory: packages/signal-cli
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @tucaken/signal-mcp
+        working-directory: packages/mcp-server
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish Summary
+        env:
+          # Reads from committed package.json (no untrusted input)
+          PKG_JSON_PATH: packages/signal-cli/package.json
+        run: |
+          VERSION=$(node -p "require('./${PKG_JSON_PATH}').version")
+          {
+            echo "## npm publish — v${VERSION}"
+            echo ""
+            echo "| Package | Version | Status |"
+            echo "|---|---|---|"
+            echo "| @tucaken/ontology | ${VERSION} | ok |"
+            echo "| @tucaken/signal-cli | ${VERSION} | ok |"
+            echo "| @tucaken/signal-mcp | ${VERSION} | ok |"
+            echo ""
+            echo "Install: \`npm install -g @tucaken/signal-cli\`"
+          } >> "$GITHUB_STEP_SUMMARY"

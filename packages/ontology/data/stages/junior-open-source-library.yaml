@@ -1,0 +1,24 @@
+stage: junior
+archetype: open_source_library
+priority_sections: [hero, installation, usage, learning_journey, ai_usage]
+priority_artifacts: [readme_install_block, license_file]
+required_pillars: [readability, authenticity]
+stage_specific_suggestions:
+  - id: ai_transparency_section
+    pillar: authenticity
+    title: "Add an AI Usage section to your README"
+    description: >
+      For junior-targeting library work, transparent AI use beats invisible
+      AI use. Document what you used AI for, what you overrode.
+    trigger: ai_fingerprints_detected_or_recent
+    impact: 0.8
+    effort: 0.2
+  - id: add_usage_example
+    pillar: readability
+    title: "Add a minimal Usage example above the fold"
+    description: >
+      Library adoption decisions are made in 30 seconds. The smallest
+      runnable example is the conversion event.
+    trigger: no_usage_block
+    impact: 0.85
+    effort: 0.2

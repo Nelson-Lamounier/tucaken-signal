@@ -1,0 +1,31 @@
+{
+  "_notes": [
+    "LOCAL fixtures — read from disk rather than cloning. Use for private",
+    "or pre-publish repos where you have ground-truth knowledge of the",
+    "engineer's stage.",
+    "",
+    "Each fixture: { path, expectedStage, notes }. `path` is absolute.",
+    "",
+    "Stage labels below are the TOOL's INFERENCE (from portfolio-scan.ts).",
+    "REVIEW each one and update to your ground truth before running the",
+    "harness. Especially: if YOU built it as junior work and it was your",
+    "first SaaS attempt, label it `junior` even if the tool infers `mid`.",
+    "The validation point is to catch where the tool diverges from your",
+    "lived experience as the engineer."
+  ],
+  "fixtures": [
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/fullstack-demo", "expectedStage": "junior", "notes": "TOOL-INFERRED junior; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/quota-app", "expectedStage": "junior", "notes": "TOOL-INFERRED junior; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/cdk-scripts", "expectedStage": "junior", "notes": "TOOL-INFERRED junior; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/tucaken-quota-app", "expectedStage": "junior", "notes": "TOOL-INFERRED junior; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/algorithms-data-structure", "expectedStage": "junior", "notes": "TOOL-INFERRED junior; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/blender-mcp", "expectedStage": "junior", "notes": "TOOL-INFERRED junior; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/my-mcp", "expectedStage": "mid", "notes": "TOOL-INFERRED mid; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/kubernetes-platform", "expectedStage": "mid", "notes": "TOOL-INFERRED mid; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/tucaken-app", "expectedStage": "senior", "notes": "TOOL-INFERRED senior; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/frontend-portfolio", "expectedStage": "staff", "notes": "TOOL-INFERRED staff; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/ai-applications", "expectedStage": "staff", "notes": "TOOL-INFERRED staff; ground-truth-confirmed via dogfood" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/kubernetes-bootstrap", "expectedStage": "staff", "notes": "TOOL-INFERRED staff; confirm / overwrite" },
+    { "path": "/Users/nelsonlamounier/Desktop/portfolio/cdk-monitoring", "expectedStage": "staff", "notes": "TOOL-INFERRED staff; confirm / overwrite" }
+  ]
+}

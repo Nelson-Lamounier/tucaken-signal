@@ -1,0 +1,15 @@
+stage: staff
+archetype: internal_tool
+priority_sections: [hero, design_decisions, organizational_context]
+priority_artifacts: [rfc_documents, adrs]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: organizational_context
+    pillar: system_thinking
+    title: "Frame the tool in organizational context"
+    description: >
+      Staff signal: who else uses this, what it replaced, what it unlocked.
+      The story is the work; the code is the proof.
+    trigger: any
+    impact: 0.85
+    effort: 0.4

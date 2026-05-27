@@ -1,0 +1,15 @@
+stage: junior
+archetype: static_site
+priority_sections: [hero, getting_started, ai_usage]
+priority_artifacts: [readme_demo_link]
+required_pillars: [readability]
+stage_specific_suggestions:
+  - id: demo_link
+    pillar: readability
+    title: "Put the live site URL above the fold"
+    description: >
+      Static-site repo without a link is just markdown. The URL is
+      the artifact.
+    trigger: any
+    impact: 0.9
+    effort: 0.1

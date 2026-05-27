@@ -1,0 +1,46 @@
+{
+  "name": "tucaken-signal-cursor",
+  "displayName": "Tucaken Signal",
+  "description": "Analyze repo trust-signal for 2026 hiring market.",
+  "version": "0.1.0",
+  "private": true,
+  "publisher": "tucaken",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:tucaken.analyze",
+    "onCommand:tucaken.preview",
+    "onCommand:tucaken.compareStages"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "tucaken.analyze",
+        "title": "Tucaken: Analyze Repo Signal"
+      },
+      {
+        "command": "tucaken.preview",
+        "title": "Tucaken: Preview as Recruiter"
+      },
+      {
+        "command": "tucaken.compareStages",
+        "title": "Tucaken: Compare for Senior Role"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "echo 'no tests'"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.6.3"
+  }
+}

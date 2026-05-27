@@ -1,0 +1,35 @@
+id: internal_tool
+name: "Internal Tool or Script"
+description: >
+  Utility, CLI, or script used by the author or a small team. Often
+  un-deployed; depth lives in the operational knowledge around it.
+
+classification_signals:
+  required_any:
+    - has_single_script_entry
+  positive:
+    - has_makefile
+    - has_env_example
+  negative:
+    - has_iac
+    - has_deployment_workflow
+    - has_package_publish_config
+    - has_compose
+    - has_dockerfile
+    - has_workspaces_field
+    - has_notebooks
+
+expected_sections:
+  - hero
+  - usage
+  - examples
+
+expected_artifacts:
+  - readme_demo_block
+
+pillar_weights:
+  authenticity: 0.25
+  readability: 0.25
+  system_thinking: 0.15
+  production_reality: 0.10
+  stage_calibration: 0.25

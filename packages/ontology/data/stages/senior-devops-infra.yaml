@@ -1,0 +1,24 @@
+stage: senior
+archetype: devops_infra
+priority_sections: [hero, architecture, deployment, operational_practices, runbook, postmortems_or_incidents]
+priority_artifacts: [architecture_diagram, runbook, adrs, rfc_documents]
+required_pillars: [system_thinking, production_reality]
+stage_specific_suggestions:
+  - id: ops_runbook
+    pillar: production_reality
+    title: "Add an operational runbook (deploy, rollback, common failure modes)"
+    description: >
+      Senior infra hires write runbooks. Their absence reads as
+      \"writes Helm, doesn't operate Helm\".
+    trigger: no_runbook
+    impact: 0.95
+    effort: 0.4
+  - id: failure_mode_doc
+    pillar: production_reality
+    title: "Document at least one real incident or near-miss"
+    description: >
+      Senior signal: you've been on-call for this thing and survived.
+      One postmortem beats a perfect README.
+    trigger: any
+    impact: 0.8
+    effort: 0.4

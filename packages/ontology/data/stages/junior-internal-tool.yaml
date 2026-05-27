@@ -1,0 +1,23 @@
+stage: junior
+archetype: internal_tool
+priority_sections: [hero, usage, ai_usage, learning_journey]
+priority_artifacts: [readme_demo_block]
+required_pillars: [authenticity, readability]
+stage_specific_suggestions:
+  - id: explain_problem
+    pillar: readability
+    title: "Open the README with the problem this tool solves"
+    description: >
+      Internal-tool repos with no \"why\" read as homework. One sentence
+      framing the problem flips it.
+    trigger: any
+    impact: 0.85
+    effort: 0.1
+  - id: ai_transparency_section
+    pillar: authenticity
+    title: "Add an AI Usage note (one paragraph)"
+    description: >
+      Even one paragraph beats silence in 2026.
+    trigger: ai_fingerprints_detected_or_recent
+    impact: 0.7
+    effort: 0.15

@@ -1,0 +1,15 @@
+stage: junior
+archetype: devops_infra
+priority_sections: [hero, getting_started, deployment, ai_usage]
+priority_artifacts: [readme_demo_block, runbook]
+required_pillars: [production_reality, readability]
+stage_specific_suggestions:
+  - id: what_does_this_run
+    pillar: readability
+    title: "Open with what this infra runs and where"
+    description: >
+      Infra repos without context look like config dumps. One sentence
+      (\"runs the Y service on EKS in eu-west-1\") fixes it.
+    trigger: any
+    impact: 0.85
+    effort: 0.1

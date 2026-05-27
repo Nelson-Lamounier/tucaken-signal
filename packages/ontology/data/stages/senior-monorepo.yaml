@@ -1,0 +1,15 @@
+stage: senior
+archetype: monorepo
+priority_sections: [hero, architecture, packages_overview, design_decisions, build_tooling]
+priority_artifacts: [architecture_diagram, adrs, package_map]
+required_pillars: [system_thinking, production_reality]
+stage_specific_suggestions:
+  - id: monorepo_rationale
+    pillar: system_thinking
+    title: "Document why monorepo over polyrepo (one ADR)"
+    description: >
+      Senior signal: every monorepo is a decision. State the constraint
+      (shared deps, atomic refactors, build caching) and the trade.
+    trigger: any
+    impact: 0.85
+    effort: 0.3

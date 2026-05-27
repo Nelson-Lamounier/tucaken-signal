@@ -1,0 +1,15 @@
+stage: senior
+archetype: internal_tool
+priority_sections: [hero, usage, design_decisions, operational_practices]
+priority_artifacts: [adrs, runbook]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: tool_design_rationale
+    pillar: system_thinking
+    title: "Document why this exists vs. existing tools"
+    description: >
+      Senior internal-tool signal: \"build vs. buy vs. use what's there\"
+      reasoning. The decision is the artifact.
+    trigger: any
+    impact: 0.8
+    effort: 0.3

@@ -1,0 +1,16 @@
+{
+  "_notes": [
+    "Edge-case repos that don't fit cleanly into v1.0's 9-archetype ontology.",
+    "Kept separate so they don't drag headline accuracy.",
+    "Run with: yarn validate:classify --fixtures=validation/classification/edge-cases.json"
+  ],
+  "fixtures": [
+    { "url": "https://github.com/kubernetes/kubernetes", "expectedArchetype": "devops_infra", "expectedStage": "staff", "_note": "Platform itself, not deployment manifests; closest fit is devops_infra." },
+    { "url": "https://github.com/torvalds/linux", "expectedArchetype": "devops_infra", "expectedStage": "staff", "_note": "Kernel; no archetype fits cleanly." },
+    { "url": "https://github.com/jekyll/jekyll", "expectedArchetype": "open_source_library", "expectedStage": "senior", "_note": "Ruby gem that ships a CLI; classifier may pick production_saas due to internal Docker testing." },
+    { "url": "https://github.com/appsmithorg/appsmith", "expectedArchetype": "production_saas", "expectedStage": "staff", "_note": "Ships its own helm chart for self-hosting; helm fires devops_infra rule." },
+    { "url": "https://github.com/torvalds/linux", "expectedArchetype": "devops_infra", "expectedStage": "staff", "_note": "Kernel; no v1.0 archetype fits cleanly." },
+    { "url": "https://github.com/nodejs/node", "expectedArchetype": "production_saas", "expectedStage": "staff", "_note": "JavaScript runtime; no v1.0 archetype fits cleanly. Classifier reads library/production_saas which is defensible." },
+    { "url": "https://github.com/microsoft/TypeScript", "expectedArchetype": "monorepo", "expectedStage": "staff", "_note": "Uses Jakefile/gulp instead of yarn workspaces; monorepo rule misses." }
+  ]
+}

@@ -1,0 +1,40 @@
+id: production_saas
+name: "Production SaaS Application"
+description: >
+  A deployed software-as-a-service product, typically multi-component,
+  with real users and operational concerns.
+
+classification_signals:
+  required_any:
+    - has_deployment_workflow
+    - has_iac
+    - has_dockerfile
+    - has_compose
+  positive:
+    - has_env_example
+    - has_compose
+    - has_monitoring_config
+    - has_live_url_in_readme
+    - has_ci
+  negative:
+    - notebook_heavy
+    - has_single_script_entry
+
+expected_sections:
+  - hero
+  - getting_started
+  - architecture
+  - deployment
+  - design_decisions
+
+expected_artifacts:
+  - readme_demo_link
+  - production_deployment_evidence
+  - architecture_diagram
+
+pillar_weights:
+  authenticity: 0.20
+  readability: 0.20
+  system_thinking: 0.25
+  production_reality: 0.25
+  stage_calibration: 0.10

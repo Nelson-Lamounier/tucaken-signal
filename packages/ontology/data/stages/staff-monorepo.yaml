@@ -1,0 +1,15 @@
+stage: staff
+archetype: monorepo
+priority_sections: [hero, architecture, build_tooling, cross_system_reasoning, design_decisions]
+priority_artifacts: [rfc_documents, adrs]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: build_perf_story
+    pillar: system_thinking
+    title: "Document build/CI perf story (cache hit rate, cold vs. warm, hermeticity)"
+    description: >
+      Staff monorepo signal: you've measured and optimized the dev-loop
+      tax this shape imposes. Numbers beat narrative.
+    trigger: any
+    impact: 0.85
+    effort: 0.5

@@ -1,0 +1,15 @@
+stage: mid
+archetype: internal_tool
+priority_sections: [hero, usage, examples]
+priority_artifacts: [readme_demo_block]
+required_pillars: [readability, authenticity]
+stage_specific_suggestions:
+  - id: clarify_purpose
+    pillar: readability
+    title: "Add a one-line 'what + who-for' to the README hero"
+    description: >
+      Internal tools often have invisible purpose to outsiders. One line
+      converts the repo from \"some script\" to \"solves X for Y\".
+    trigger: any
+    impact: 0.7
+    effort: 0.1

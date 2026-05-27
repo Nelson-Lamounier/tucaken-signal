@@ -1,0 +1,15 @@
+stage: staff
+archetype: cli_tool
+priority_sections: [hero, ecosystem, design_decisions, governance]
+priority_artifacts: [rfc_documents, adrs, governance_doc]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: ecosystem_strategy
+    pillar: system_thinking
+    title: "Document ecosystem strategy (plugins, integrations, what this composes with)"
+    description: >
+      Staff CLI signal: tools that endure are composable. State the
+      extension points and the boundaries.
+    trigger: any
+    impact: 0.85
+    effort: 0.5

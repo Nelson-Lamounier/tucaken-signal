@@ -1,0 +1,29 @@
+id: static_site
+name: "Static Site / Docs / Blog"
+description: >
+  Static site, documentation site, marketing page, or blog generator.
+
+classification_signals:
+  required_any:
+    - has_static_site_config
+    - has_docs_site_config
+  positive:
+    - has_content_dir
+    - has_deployment_workflow
+  negative:
+    - has_iac
+
+expected_sections:
+  - hero
+  - getting_started
+  - structure
+
+expected_artifacts:
+  - readme_demo_link
+
+pillar_weights:
+  authenticity: 0.20
+  readability: 0.35
+  system_thinking: 0.15
+  production_reality: 0.20
+  stage_calibration: 0.10

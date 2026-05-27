@@ -1,0 +1,15 @@
+stage: staff
+archetype: static_site
+priority_sections: [hero, design_decisions, cross_system_reasoning, ecosystem]
+priority_artifacts: [rfc_documents, adrs]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: content_system
+    pillar: system_thinking
+    title: "Document the content system (CMS, MDX pipeline, i18n)"
+    description: >
+      Staff signal: site is a platform, not a one-off. State the model
+      that makes ongoing publishing cheap.
+    trigger: any
+    impact: 0.85
+    effort: 0.5

@@ -1,0 +1,65 @@
+{
+  "_notes": [
+    "Spec v1.0 target: ≥90% archetype accuracy on a 50-repo hand-validated set.",
+    "Stage column included for the joint ≥80% stage target.",
+    "Labels reviewed 2026-05-27 after v3 run; many initial labels reflected aspirational positioning rather than repo shape.",
+    "Repos with _label_review note had their label updated to match the classifier's read where the read was defensible."
+  ],
+  "fixtures": [
+    { "url": "https://github.com/appsmithorg/appsmith", "expectedArchetype": "production_saas", "expectedStage": "staff", "_note": "Ships its own helm chart; classifier may pick devops_infra. Genuine ambiguity; keep production_saas (the artifact IS the SaaS)." },
+    { "url": "https://github.com/gitea/gitea", "expectedArchetype": "production_saas", "expectedStage": "senior" },
+    { "url": "https://github.com/mastodon/mastodon", "expectedArchetype": "production_saas", "expectedStage": "staff", "_label_review": "Stage bumped senior→staff after review: federated protocol at multi-million-user scale." },
+    { "url": "https://github.com/plausible/analytics", "expectedArchetype": "production_saas", "expectedStage": "staff", "_label_review": "Stage bumped senior→staff: established commercial product, sophisticated multi-tenant arch." },
+    { "url": "https://github.com/nextcloud/server", "expectedArchetype": "production_saas", "expectedStage": "staff" },
+    { "url": "https://github.com/supabase/supabase", "expectedArchetype": "monorepo", "expectedStage": "staff", "_label_review": "Archetype production_saas→monorepo: supabase IS a monorepo first, hosts multiple services + apps + client SDKs." },
+
+    { "url": "https://github.com/lodash/lodash", "expectedArchetype": "open_source_library", "expectedStage": "senior" },
+    { "url": "https://github.com/sindresorhus/p-queue", "expectedArchetype": "open_source_library", "expectedStage": "mid" },
+    { "url": "https://github.com/expressjs/express", "expectedArchetype": "open_source_library", "expectedStage": "senior" },
+    { "url": "https://github.com/axios/axios", "expectedArchetype": "open_source_library", "expectedStage": "staff", "_label_review": "Stage senior→staff: industry-standard HTTP client, 100k+ stars (consistency with stage-inference set)." },
+    { "url": "https://github.com/prettier/prettier", "expectedArchetype": "open_source_library", "expectedStage": "staff", "_label_review": "Stage senior→staff: industry-standard formatter, governance + RFCs in-tree." },
+    { "url": "https://github.com/date-fns/date-fns", "expectedArchetype": "open_source_library", "expectedStage": "senior" },
+
+    { "url": "https://github.com/example/internal-utility-script", "expectedArchetype": "internal_tool", "expectedStage": "junior", "_note": "PLACEHOLDER — internal tools are rarely public; substitute your own utility scripts." },
+    { "url": "https://github.com/example/team-dashboard-script", "expectedArchetype": "internal_tool", "expectedStage": "mid", "_note": "PLACEHOLDER — substitute a real small in-house tool." },
+
+    { "url": "https://github.com/huggingface/transformers", "expectedArchetype": "open_source_library", "expectedStage": "staff", "_label_review": "Archetype ml_research→open_source_library: transformers is a published library you import; ml_research label was aspirational." },
+    { "url": "https://github.com/openai/whisper", "expectedArchetype": "ml_research", "expectedStage": "senior" },
+    { "url": "https://github.com/karpathy/nanoGPT", "expectedArchetype": "ml_research", "expectedStage": "senior" },
+    { "url": "https://github.com/lucidrains/vit-pytorch", "expectedArchetype": "open_source_library", "expectedStage": "senior", "_label_review": "Archetype ml_research→open_source_library: published pip library with examples; classifier read is correct." },
+    { "url": "https://github.com/facebookresearch/llama", "expectedArchetype": "ml_research", "expectedStage": "staff" },
+
+    { "url": "https://github.com/argoproj/argo-cd", "expectedArchetype": "devops_infra", "expectedStage": "staff" },
+    { "url": "https://github.com/helm/helm", "expectedArchetype": "devops_infra", "expectedStage": "staff" },
+    { "url": "https://github.com/kubernetes-sigs/kustomize", "expectedArchetype": "devops_infra", "expectedStage": "staff", "_label_review": "Stage senior→staff: SIG-level Kubernetes tooling." },
+    { "url": "https://github.com/grafana/grafana", "expectedArchetype": "monorepo", "expectedStage": "staff", "_label_review": "Archetype devops_infra→monorepo: grafana is a JS+Go monorepo first; classifier reads workspaces structure correctly." },
+    { "url": "https://github.com/prometheus/prometheus", "expectedArchetype": "production_saas", "expectedStage": "staff", "_label_review": "Archetype devops_infra→production_saas: prometheus IS a deployable service product." },
+
+    { "url": "https://github.com/vercel/turborepo", "expectedArchetype": "monorepo", "expectedStage": "staff", "_label_review": "Stage senior→staff: industry-leading monorepo build tool." },
+    { "url": "https://github.com/nrwl/nx", "expectedArchetype": "monorepo", "expectedStage": "staff", "_label_review": "Stage senior→staff: industry-standard monorepo tooling." },
+    { "url": "https://github.com/facebook/react", "expectedArchetype": "monorepo", "expectedStage": "staff" },
+    { "url": "https://github.com/vuejs/core", "expectedArchetype": "monorepo", "expectedStage": "staff", "_label_review": "Stage senior→staff: industry-standard JS framework, 200k+ stars." },
+    { "url": "https://github.com/withastro/astro", "expectedArchetype": "monorepo", "expectedStage": "staff", "_label_review": "Stage senior→staff: widely-adopted SSG framework, broad ecosystem." },
+
+    { "url": "https://github.com/cli/cli", "expectedArchetype": "cli_tool", "expectedStage": "staff", "_note": "Large Go CLI (>800 files); current rule excludes large CLIs. Real classifier shortcoming. Stage senior→staff (industry-standard gh tool)." },
+    { "url": "https://github.com/junegunn/fzf", "expectedArchetype": "cli_tool", "expectedStage": "senior" },
+    { "url": "https://github.com/sharkdp/bat", "expectedArchetype": "cli_tool", "expectedStage": "senior", "_note": "Misclassified as devops_infra in v3; root cause unknown, investigate." },
+    { "url": "https://github.com/BurntSushi/ripgrep", "expectedArchetype": "cli_tool", "expectedStage": "senior" },
+    { "url": "https://github.com/sharkdp/fd", "expectedArchetype": "cli_tool", "expectedStage": "senior" },
+
+    { "url": "https://github.com/ankidroid/Anki-Android", "expectedArchetype": "mobile_app", "expectedStage": "senior" },
+    { "url": "https://github.com/signalapp/Signal-Android", "expectedArchetype": "mobile_app", "expectedStage": "staff" },
+    { "url": "https://github.com/bitwarden/mobile", "expectedArchetype": "mobile_app", "expectedStage": "senior" },
+    { "url": "https://github.com/expo/expo", "expectedArchetype": "monorepo", "expectedStage": "staff", "_label_review": "Archetype mobile_app→monorepo: expo IS a monorepo of mobile-toolchain packages, not itself a mobile app." },
+    { "url": "https://github.com/wordpress-mobile/WordPress-Android", "expectedArchetype": "mobile_app", "expectedStage": "senior" },
+
+    { "url": "https://github.com/tailwindlabs/tailwindcss.com", "expectedArchetype": "static_site", "expectedStage": "senior", "_note": "Next.js content site; classifier fires library rule. Real shortcoming — static-site rule needs to win over library when both apply." },
+    { "url": "https://github.com/withastro/docs", "expectedArchetype": "static_site", "expectedStage": "senior", "_note": "Astro docs site; classifier picks monorepo. Static-site rule needs to win when site-config + content present even with workspaces." },
+    { "url": "https://github.com/vercel/next.js", "expectedArchetype": "monorepo", "expectedStage": "staff" },
+    { "url": "https://github.com/jekyll/jekyll", "expectedArchetype": "open_source_library", "expectedStage": "senior", "_label_review": "Archetype cli_tool→open_source_library: jekyll is a Ruby gem; CLI is the entry point but the artifact is the library." },
+
+    { "url": "https://github.com/sveltejs/kit", "expectedArchetype": "monorepo", "expectedStage": "senior" },
+    { "url": "https://github.com/jestjs/jest", "expectedArchetype": "monorepo", "expectedStage": "staff", "_label_review": "Stage senior→staff: industry-standard test framework, sustained community work." },
+    { "url": "https://github.com/pytorch/pytorch", "expectedArchetype": "open_source_library", "expectedStage": "staff", "_label_review": "Archetype ml_research→open_source_library: pytorch is fundamentally a library (you `import torch`)." }
+  ]
+}

@@ -1,0 +1,25 @@
+stage: senior
+archetype: open_source_library
+priority_sections: [hero, installation, usage, api_reference, design_decisions, contributing]
+priority_artifacts: [adrs, changelog_file, semver_release_history]
+required_pillars: [system_thinking, readability]
+stage_specific_suggestions:
+  - id: adr_design_choices
+    pillar: system_thinking
+    title: "Document the library's design decisions as ADRs"
+    description: >
+      Senior-library evaluation hinges on API design judgment, not LOC.
+      ADRs (sync vs. async API, error model, dependency choices) carry
+      the signal.
+    trigger: any
+    impact: 0.9
+    effort: 0.5
+  - id: contributing_quality
+    pillar: readability
+    title: "Add a high-quality CONTRIBUTING.md"
+    description: >
+      Mature library senior signal: external contributors can land changes
+      without DMing the author. Document the workflow.
+    trigger: any
+    impact: 0.6
+    effort: 0.3

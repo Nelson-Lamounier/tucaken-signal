@@ -1,0 +1,15 @@
+stage: mid
+archetype: static_site
+priority_sections: [hero, getting_started, structure]
+priority_artifacts: [readme_demo_link]
+required_pillars: [readability]
+stage_specific_suggestions:
+  - id: demo_link
+    pillar: readability
+    title: "Surface the live site URL in the README hero"
+    description: >
+      A static-site repo without a live link is just markdown. The URL is
+      the artifact.
+    trigger: any
+    impact: 0.9
+    effort: 0.1

@@ -1,0 +1,15 @@
+stage: staff
+archetype: mobile_app
+priority_sections: [hero, architecture, cross_system_reasoning, design_decisions, operational_practices]
+priority_artifacts: [rfc_documents, adrs]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: platform_strategy
+    pillar: system_thinking
+    title: "Document multi-platform strategy (iOS / Android / web parity)"
+    description: >
+      Staff mobile signal: cross-platform consistency, code-sharing
+      strategy, feature-flag rollouts, A/B story.
+    trigger: any
+    impact: 0.85
+    effort: 0.5

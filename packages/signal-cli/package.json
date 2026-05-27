@@ -1,0 +1,61 @@
+{
+  "name": "@tucaken/signal-cli",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "Portfolio trust-signal analyzer for engineering work in the 2026 hiring market. Classifies repos across 9 archetypes × 4 career stages, scores 5 hiring-signal pillars, and generates evidence-grounded recommendations.",
+  "keywords": [
+    "portfolio",
+    "hiring",
+    "github",
+    "career",
+    "claude-code",
+    "mcp",
+    "static-analysis",
+    "ai-disclosure"
+  ],
+  "homepage": "https://github.com/tucaken/signal",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tucaken/signal.git",
+    "directory": "packages/signal-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/tucaken/signal/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "bin": {
+    "tucaken-signal": "dist/cli/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "cli": "tsx src/cli/index.ts",
+    "prepublishOnly": "yarn build && yarn test"
+  },
+  "dependencies": {
+    "@tucaken/ontology": "workspace:*",
+    "gray-matter": "^4.0.3",
+    "simple-git": "^3.27.0",
+    "yaml": "^2.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}

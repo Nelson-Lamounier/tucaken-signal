@@ -1,0 +1,15 @@
+stage: junior
+archetype: mobile_app
+priority_sections: [hero, screenshots, build_and_run, ai_usage]
+priority_artifacts: [readme_screenshot, store_link]
+required_pillars: [readability, production_reality]
+stage_specific_suggestions:
+  - id: screenshots_above_fold
+    pillar: readability
+    title: "Put 2-3 screenshots above the fold"
+    description: >
+      Mobile apps without screenshots invisibilise the entire UI work.
+      Images are the work.
+    trigger: no_screenshots
+    impact: 0.95
+    effort: 0.15

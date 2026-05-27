@@ -1,0 +1,54 @@
+{
+  "name": "@tucaken/signal-mcp",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "MIT",
+  "description": "MCP server companion for Tucaken Signal. Exposes analyze_local_repo + Tucaken-authenticated account state to host agents (Claude Code, Cursor, Codex CLI).",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "tucaken",
+    "portfolio",
+    "claude-code"
+  ],
+  "homepage": "https://github.com/tucaken/signal/tree/main/packages/mcp-server",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tucaken/signal.git",
+    "directory": "packages/mcp-server"
+  },
+  "bugs": {
+    "url": "https://github.com/tucaken/signal/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "bin": {
+    "tucaken-signal-mcp": "dist/server.js"
+  },
+  "main": "dist/server.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "start": "node dist/server.js",
+    "prepublishOnly": "yarn build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "@tucaken/signal-cli": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}

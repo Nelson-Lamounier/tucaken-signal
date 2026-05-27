@@ -1,0 +1,16 @@
+stage: staff
+archetype: devops_infra
+priority_sections: [hero, architecture, cross_system_reasoning, design_decisions, operational_practices]
+priority_artifacts: [rfc_documents, adrs, runbook]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: platform_thesis
+    pillar: system_thinking
+    title: "Add a 'platform thesis' — what this platform is for and what it explicitly is not"
+    description: >
+      Staff infra signal: scope discipline. What this enables, what it
+      refuses to do, and why. Prevents the platform from becoming a
+      kitchen-sink.
+    trigger: any
+    impact: 0.9
+    effort: 0.5

@@ -1,0 +1,15 @@
+stage: mid
+archetype: monorepo
+priority_sections: [hero, architecture, packages_overview, contributing]
+priority_artifacts: [architecture_diagram, package_map]
+required_pillars: [system_thinking, readability]
+stage_specific_suggestions:
+  - id: packages_map
+    pillar: readability
+    title: "Add a 'Packages' section listing each workspace + purpose"
+    description: >
+      Monorepos look opaque without a package map. One line per workspace
+      converts the repo from a maze into a system.
+    trigger: any
+    impact: 0.85
+    effort: 0.2

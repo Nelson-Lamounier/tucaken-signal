@@ -1,0 +1,15 @@
+stage: junior
+archetype: monorepo
+priority_sections: [hero, packages_overview, getting_started, ai_usage]
+priority_artifacts: [package_map]
+required_pillars: [readability, authenticity]
+stage_specific_suggestions:
+  - id: packages_map
+    pillar: readability
+    title: "Add a 'Packages' table (one line per workspace)"
+    description: >
+      Monorepos read as mazes without a map. One line per package
+      converts opacity into navigation.
+    trigger: any
+    impact: 0.9
+    effort: 0.2

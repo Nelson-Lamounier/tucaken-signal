@@ -1,0 +1,26 @@
+{
+  "name": "tucaken-signal-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "yarn@4.12.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "yarn workspaces foreach -A --topological-dev run build",
+    "test": "yarn workspaces foreach -A run test",
+    "typecheck": "yarn workspaces foreach -A run typecheck",
+    "cli": "yarn workspace @tucaken/signal-cli run cli",
+    "validate:stage-inference": "tsx validation/stage-inference/run.ts",
+    "validate:stage-local": "tsx validation/stage-inference/run-local.ts",
+    "validate:classify": "tsx validation/classification/run.ts",
+    "validate:all": "yarn validate:classify && yarn validate:stage-inference"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}

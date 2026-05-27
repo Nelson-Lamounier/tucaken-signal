@@ -1,0 +1,25 @@
+stage: mid
+archetype: ml_research
+priority_sections: [hero, data, methodology, results, reproducibility]
+priority_artifacts: [readme_results_block, notebook_index]
+required_pillars: [authenticity, readability]
+stage_specific_suggestions:
+  - id: add_results_block
+    pillar: readability
+    title: "Add a Results block (one table or chart) to the README"
+    description: >
+      ML repos without a results summary look like coursework. A single
+      table or chart above the fold converts the repo into a paper-style
+      artifact.
+    trigger: any
+    impact: 0.9
+    effort: 0.3
+  - id: reproducibility_steps
+    pillar: production_reality
+    title: "Document reproducibility (env + commands + seed)"
+    description: >
+      Reviewers cannot trust results they cannot rerun. A 5-line repro
+      block is the highest-leverage credibility signal for ML repos.
+    trigger: any
+    impact: 0.85
+    effort: 0.3

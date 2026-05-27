@@ -1,0 +1,23 @@
+stage: senior
+archetype: mobile_app
+priority_sections: [hero, screenshots, architecture, design_decisions, deployment, operational_practices]
+priority_artifacts: [architecture_diagram, adrs, store_link]
+required_pillars: [system_thinking, production_reality]
+stage_specific_suggestions:
+  - id: mobile_arch_decisions
+    pillar: system_thinking
+    title: "Document state-mgmt / nav / offline-sync decisions"
+    description: >
+      Senior mobile signal: opinionated choices on Redux-vs-Zustand,
+      nav lib, offline strategy. The reasoning is the moat.
+    trigger: any
+    impact: 0.85
+    effort: 0.4
+  - id: release_pipeline_doc
+    pillar: production_reality
+    title: "Document the release pipeline (TestFlight / Play internal track)"
+    description: >
+      Senior signal: you've shipped, not just built. Pipeline = proof.
+    trigger: any
+    impact: 0.8
+    effort: 0.3

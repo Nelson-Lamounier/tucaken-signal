@@ -1,0 +1,34 @@
+id: monorepo
+name: "Monorepo"
+description: >
+  Multi-package workspace (yarn / pnpm / nx / turborepo / bazel),
+  regardless of whether components are deployed.
+
+classification_signals:
+  required_any:
+    - has_workspaces_field
+    - has_nx_json
+    - has_turbo_json
+    - has_pnpm_workspace
+  positive:
+    - has_multi_package_src
+    - has_iac
+  negative:
+    - has_single_script_entry
+
+expected_sections:
+  - hero
+  - architecture
+  - packages_overview
+  - contributing
+
+expected_artifacts:
+  - architecture_diagram
+  - package_map
+
+pillar_weights:
+  authenticity: 0.15
+  readability: 0.25
+  system_thinking: 0.30
+  production_reality: 0.20
+  stage_calibration: 0.10

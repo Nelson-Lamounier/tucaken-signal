@@ -1,0 +1,31 @@
+id: cli_tool
+name: "Published CLI Tool"
+description: >
+  Command-line tool with a published binary or npm/pip entry point.
+
+classification_signals:
+  required_any:
+    - has_bin_field
+    - has_console_scripts
+  positive:
+    - has_package_publish_config
+    - has_man_page
+  negative:
+    - has_iac
+
+expected_sections:
+  - hero
+  - installation
+  - usage
+  - commands_reference
+
+expected_artifacts:
+  - readme_install_block
+  - asciinema_or_screencast
+
+pillar_weights:
+  authenticity: 0.20
+  readability: 0.30
+  system_thinking: 0.20
+  production_reality: 0.15
+  stage_calibration: 0.15

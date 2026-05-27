@@ -1,0 +1,15 @@
+stage: mid
+archetype: cli_tool
+priority_sections: [hero, installation, usage, commands_reference]
+priority_artifacts: [readme_install_block, asciinema_or_screencast]
+required_pillars: [readability, authenticity]
+stage_specific_suggestions:
+  - id: add_demo_recording
+    pillar: readability
+    title: "Add an asciinema or GIF demo above the fold"
+    description: >
+      CLI tools live or die on the 5-second demo. A recording is worth
+      more than 200 lines of README text.
+    trigger: no_demo_media
+    impact: 0.9
+    effort: 0.25

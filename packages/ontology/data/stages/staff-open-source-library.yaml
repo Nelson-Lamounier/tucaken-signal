@@ -1,0 +1,16 @@
+stage: staff
+archetype: open_source_library
+priority_sections: [hero, design_decisions, governance, ecosystem]
+priority_artifacts: [adrs, rfc_documents, governance_doc]
+required_pillars: [system_thinking]
+stage_specific_suggestions:
+  - id: governance_model
+    pillar: system_thinking
+    title: "Document the library's governance model"
+    description: >
+      Staff-level OSS signal: how decisions get made, how breaking changes
+      are deliberated, how maintainers join. Required for credible
+      cross-org adoption.
+    trigger: any
+    impact: 0.85
+    effort: 0.6

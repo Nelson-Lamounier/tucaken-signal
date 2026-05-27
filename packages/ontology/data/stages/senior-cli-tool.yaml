@@ -1,0 +1,15 @@
+stage: senior
+archetype: cli_tool
+priority_sections: [hero, usage, commands_reference, design_decisions, contributing]
+priority_artifacts: [adrs, man_page]
+required_pillars: [system_thinking, readability]
+stage_specific_suggestions:
+  - id: ux_decisions
+    pillar: system_thinking
+    title: "Document CLI UX decisions (flag taxonomy, exit codes, machine-readable output)"
+    description: >
+      Senior CLI signal: you've thought about scripts piping into your
+      tool, not just humans typing it.
+    trigger: any
+    impact: 0.85
+    effort: 0.4

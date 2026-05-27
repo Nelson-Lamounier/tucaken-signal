@@ -15,7 +15,6 @@ import { applyDraft } from "./apply.js";
 import { animatePreview } from "./animate.js";
 import { runConfig } from "./commands/config.js";
 import { runTelemetry } from "./commands/telemetry.js";
-import { runSync } from "./commands/sync.js";
 import { ConfigStore } from "../config/ConfigStore.js";
 import { Telemetry, pickTelemetrySink } from "../telemetry/TelemetryClient.js";
 import { Ontology, type StageId } from "@tucaken/ontology";
@@ -54,15 +53,13 @@ async function main(): Promise<void> {
   });
 
   if (report.stage.inferred && report.stage.confidence < INFERENCE_GATE && !args.yes
-      && !["draft", "apply", "sync"].includes(args.command)) {
+      && !["draft", "apply"].includes(args.command)) {
     process.stderr.write(
       `\n⚠ Stage inference confidence ${report.stage.confidence} below gate (${INFERENCE_GATE}).\n` +
       `  Inferred: ${report.stage.id} (${report.stage.explanation})\n` +
       `  Re-run with --stage=junior|mid|senior|staff to lock target, or --yes to accept.\n\n`
     );
   }
-
-  if (args.command === "sync") { process.exit(await runSync(args.positional, cfg, report)); }
 
   if (args.command === "preview") {
     const text = renderRecruiterPreview({ evidence, fold: analyzeAboveFold(evidence), archetype: report.archetype.id });
@@ -130,7 +127,6 @@ Usage:
   tucaken-signal ontology                            show loaded ontology
   tucaken-signal config get|set|unset [key] [value]  manage ~/.tucaken/config.json
   tucaken-signal telemetry opt-in|opt-out|status     manage anonymous telemetry (default: opt-out)
-  tucaken-signal sync projects|push [projectId]      push suggestions to Tucaken account (requires token)
 
 Flags:
   --stage=junior|mid|senior|staff                    override inferred stage

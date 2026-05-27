@@ -238,24 +238,29 @@ Run this mentally before sending any user-facing message:
 
 If any answer is NO, stop and fix before responding.
 
-## Tucaken account integration (optional)
+## MCP server (alternative to shelling out to the CLI)
 
-If the user is signed in (`tucaken-signal config get tucaken_token`
-returns a value), additional commands become available:
+The companion `@tucaken/signal-mcp` server exposes two tools to host
+agents over stdio (Claude Code, Cursor, Codex CLI):
 
-- `tucaken-signal sync push [projectId]` — saves the current suggestions
-  to the user's Tucaken account so they propagate into the next resume
-  generation.
-- `tucaken-signal sync projects` — lists the user's existing Tucaken
-  projects so suggestions can be tied to one.
-- Or, when the `@tucaken/signal-mcp` server is wired into the host
-  agent, call the MCP tools `list_projects`, `analyze_local_repo`,
-  `save_signal_suggestions` directly — no shell invocation needed.
+- `analyze_local_repo({ path, stage? })` — runs the same `analyze()`
+  function the CLI uses; returns the structured `TrustSignalReport`.
+  No subprocess, no JSON re-parsing.
+- `get_user_ontology_version()` — returns the pinned ontology version
+  so the host knows which rule set produced the report.
 
-The MCP server's account tools may return
-`{ status: "not_authenticated", ... }` if no token is configured.
-Treat that as a normal response, not an error — relay the suggested
-configure command to the user.
+When the MCP server is wired into the host agent, prefer it over
+`tucaken-signal --format=json` shell-out — tighter coupling, typed
+responses, no subprocess overhead.
+
+Install:
+
+```bash
+claude mcp add tucaken-signal npx -y @tucaken/signal-mcp
+```
+
+Neither tool requires authentication. Tucaken Signal is a standalone
+analyzer, not a client of the Tucaken platform.
 
 ## Privacy posture (load-bearing — do not violate)
 

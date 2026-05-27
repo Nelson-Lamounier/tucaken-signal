@@ -2,7 +2,7 @@ import type { ArchetypeId, StageId } from "@tucaken/ontology";
 
 export type Command =
   | "analyze" | "preview" | "compare-stages" | "ontology" | "draft" | "apply"
-  | "config" | "telemetry" | "sync" | "help";
+  | "config" | "telemetry" | "help";
 
 export interface ParsedArgs {
   command: Command;
@@ -22,7 +22,7 @@ export interface ParsedArgs {
 }
 
 const STAGES = new Set<StageId>(["junior", "mid", "senior", "staff"]);
-const COMMANDS = /^(analyze|preview|compare-stages|ontology|draft|apply|config|telemetry|sync|help)$/;
+const COMMANDS = /^(analyze|preview|compare-stages|ontology|draft|apply|config|telemetry|help)$/;
 
 export function parseArgs(argv: string[]): ParsedArgs {
   const args = argv.slice(2);

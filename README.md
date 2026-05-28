@@ -14,17 +14,31 @@ visible in a 55-second recruiter scan.
 npm install -g @tucaken/signal-cli@latest
 ```
 
-Or run any command with:
+## Two-step workflow
+
+Mirrors a discovery → act pattern. `scan` is read-only and produces a
+report; `apply` writes a chosen suggestion into the repo.
 
 ```bash
-tucaken-signal .                        # full analysis of cwd
-tucaken-signal preview .                # 55-second recruiter simulation
-tucaken-signal preview . --animate      # paced reveal
-tucaken-signal compare-stages .         # same repo across junior/mid/senior/staff
-tucaken-signal --format=md .            # markdown report
-tucaken-signal draft <suggestion-id>    # accept-ready draft
-tucaken-signal apply <id> --branch=docs/signal-improvements   # write draft + commit
+# 1. Scan — writes .tucaken-signal/reports/<date>-<repo>.md (read-only)
+tucaken-signal scan .
+#    (bare `tucaken-signal .` does the same — scan is the default)
+
+# 2. Apply — act on a suggestion from the report
+tucaken-signal apply .                       # list draftable suggestion ids
+tucaken-signal apply . --id=<id> --dry-run   # preview the draft (no write)
+tucaken-signal apply . --id=<id> --branch=docs/signal-improvements   # write it in
 ```
+
+The scan report is one self-contained markdown file containing: pillar
+scores, the 55-second recruiter preview, a stage comparison
+(junior/mid/senior/staff), every suggestion with its id + evidence, and
+anticipated interview questions. Refer back to it; re-scan in 3 months and
+diff to see what you improved.
+
+Optional flags: `--stage=junior|mid|senior|staff` (lock the target),
+`--with-github` (BYOK GitHub signals), `--with-llm` (LLM-enhanced drafts on
+apply).
 
 ### Claude Code skill
 

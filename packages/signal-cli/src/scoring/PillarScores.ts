@@ -100,7 +100,7 @@ function scoreAuthenticity({ evidence, aiUsage, commits, humanJudgment }: Pillar
 }
 
 function scoreStageCalibration(_: PillarInputs): PillarScore {
-  return { pillar: "stage_calibration", score: 60, notes: ["modulator pillar; see compare-stages"] };
+  return { pillar: "stage_calibration", score: 60, notes: ["modulator pillar; see stage comparison in the report"] };
 }
 
 export function applyWeights(scores: PillarScore[], weights: Record<PillarId, number>): number {

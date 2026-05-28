@@ -1,18 +1,15 @@
 #!/usr/bin/env node
-import { resolve, dirname } from "node:path";
-import { writeFileSync, mkdirSync } from "node:fs";
+import { resolve, basename, join } from "node:path";
+import { mkdirSync, writeFileSync, readdirSync } from "node:fs";
 import { parseArgs } from "./args.js";
 import { analyze } from "../pipeline.js";
-import { renderTerminal } from "../output/TerminalRenderer.js";
-import { renderJson } from "../output/JsonRenderer.js";
-import { renderMarkdown } from "../output/MarkdownRenderer.js";
 import { renderRecruiterPreview } from "../output/RecruiterPreviewRenderer.js";
+import { renderScanReport, type StageComparisonRow } from "../output/ScanReportRenderer.js";
 import { analyzeAboveFold } from "../analyzers/readability/AboveFoldAnalyzer.js";
 import { detectDecisions } from "../analyzers/system_thinking/DecisionDetector.js";
 import { generateDraft, enhanceWithLlm } from "../suggestions/DraftGenerator.js";
 import { pickLlmClient } from "../llm/LlmClient.js";
 import { applyDraft } from "./apply.js";
-import { animatePreview } from "./animate.js";
 import { runConfig } from "./commands/config.js";
 import { runTelemetry } from "./commands/telemetry.js";
 import { ConfigStore } from "../config/ConfigStore.js";
@@ -20,7 +17,8 @@ import { Telemetry, pickTelemetrySink } from "../telemetry/TelemetryClient.js";
 import { Ontology, type StageId } from "@tucaken/ontology";
 
 const INFERENCE_GATE = 0.75;
-const CLI_VERSION = "0.1.0";
+const CLI_VERSION = "0.3.0";
+const REPORTS_DIR = ".tucaken-signal/reports";
 
 async function main(): Promise<void> {
   const args = parseArgs(process.argv);
@@ -28,8 +26,8 @@ async function main(): Promise<void> {
   const telemetry = new Telemetry(cfg, pickTelemetrySink(cfg));
 
   if (args.command === "help") return printHelp();
-  if (args.command === "config") { process.exit(runConfig(args.positional, cfg)); }
-  if (args.command === "telemetry") { process.exit(runTelemetry(args.positional, cfg)); }
+  if (args.command === "config") process.exit(runConfig(args.positional, cfg));
+  if (args.command === "telemetry") process.exit(runTelemetry(args.positional, cfg));
   if (args.command === "ontology") {
     const o = new Ontology();
     process.stdout.write(`Tucaken ontology v${o.version.version} (released ${o.version.released})\n`);
@@ -37,11 +35,23 @@ async function main(): Promise<void> {
     return;
   }
 
-  const needsRepo = !["draft", "apply"].includes(args.command);
-  const root = resolve(needsRepo ? args.path : ".");
+  const root = resolve(args.path);
 
-  const result = await analyze({ root, stage: args.stage, archetype: args.archetype, withGithub: args.withGithub });
-  const { report, evidence, diagramDraft } = result;
+  if (args.command === "apply") return runApply(args, root);
+
+  // Default + `scan`
+  await runScan(args, root, cfg, telemetry);
+}
+
+async function runScan(
+  args: ReturnType<typeof parseArgs>,
+  root: string,
+  cfg: ConfigStore,
+  telemetry: Telemetry
+): Promise<void> {
+  const { report, evidence } = await analyze({
+    root, stage: args.stage, archetype: args.archetype, withGithub: args.withGithub,
+  });
 
   await telemetry.record({
     cli_version: CLI_VERSION,
@@ -49,92 +59,145 @@ async function main(): Promise<void> {
     archetype_detected: report.archetype.id,
     stage: report.stage.id,
     suggestion_count: report.suggestions.length,
-    command_used: args.command,
+    command_used: "scan",
   });
 
-  if (report.stage.inferred && report.stage.confidence < INFERENCE_GATE && !args.yes
-      && !["draft", "apply"].includes(args.command)) {
+  // Confidence gate — ask the user rather than silently accepting.
+  if (report.stage.inferred && report.stage.confidence < INFERENCE_GATE && !args.stage && !args.yes) {
     process.stderr.write(
       `\n⚠ Stage inference confidence ${report.stage.confidence} below gate (${INFERENCE_GATE}).\n` +
       `  Inferred: ${report.stage.id} (${report.stage.explanation})\n` +
-      `  Re-run with --stage=junior|mid|senior|staff to lock target, or --yes to accept.\n\n`
+      `  Re-run with --stage=junior|mid|senior|staff to lock the target, or --yes to accept.\n\n`
     );
   }
 
-  if (args.command === "preview") {
-    const text = renderRecruiterPreview({ evidence, fold: analyzeAboveFold(evidence), archetype: report.archetype.id });
-    if (args.animate) await animatePreview(text); else process.stdout.write(text);
-    return;
+  // Stage comparison (folds in the old compare-stages command).
+  const stages: StageId[] = ["junior", "mid", "senior", "staff"];
+  const stageComparison: StageComparisonRow[] = [];
+  for (const s of stages) {
+    const r = (await analyze({ root, stage: s, archetype: report.archetype.id, withGithub: args.withGithub })).report;
+    stageComparison.push({ stage: s, overallScore: r.overallScore, topSuggestion: r.suggestions[0]?.title ?? "(none)" });
   }
-  if (args.command === "compare-stages") {
-    const stages: StageId[] = ["junior", "mid", "senior", "staff"];
-    for (const s of stages) {
-      const r = (await analyze({ root, stage: s, archetype: report.archetype.id, withGithub: args.withGithub })).report;
-      process.stdout.write(`\n[${s.toUpperCase()}]  overall=${r.overallScore}  top: ${r.suggestions[0]?.title ?? "(no suggestions)"}\n`);
-    }
-    return;
+
+  const previewText = renderRecruiterPreview({
+    evidence, fold: analyzeAboveFold(evidence), archetype: report.archetype.id,
+  });
+
+  const repoName = basename(root);
+  const generatedAt = new Date().toISOString().slice(0, 10);
+  const md = renderScanReport({ repoName, repoPath: root, generatedAt, report, previewText, stageComparison });
+
+  // Write the persistent report (kb-discovery model).
+  const reportsDir = join(root, REPORTS_DIR);
+  mkdirSync(reportsDir, { recursive: true });
+  const reportPath = join(reportsDir, `${generatedAt}-${repoName}.md`);
+  writeFileSync(reportPath, md, "utf8");
+
+  // Terminal summary — short. The report file is the durable artifact.
+  process.stdout.write(`\n${repoName} — ${report.archetype.id} • stage ${report.stage.id} • ${report.overallScore}/100\n`);
+  for (const p of report.pillars) {
+    process.stdout.write(`  ${p.pillar.padEnd(20)} ${String(p.score).padStart(3)}/100\n`);
   }
-  if (args.command === "draft" || args.command === "apply") {
-    const id = args.positional[0];
-    if (!id) {
-      process.stderr.write(`usage: tucaken-signal ${args.command} <suggestion-id>${args.command === "apply" ? " [--branch=name] [--no-commit]" : " [--output=path] [--with-llm]"}\n`);
-      process.exit(2);
-    }
-    const suggestion = report.suggestions.find((s) => s.id === id);
-    if (!suggestion) {
-      process.stderr.write(`No suggestion with id "${id}". Available draftable ids:\n`);
-      for (const s of report.suggestions) if (s.draftAvailable) process.stderr.write(`  ${s.id}  — ${s.title}\n`);
-      process.exit(2);
-    }
-    let draft = generateDraft(suggestion, { report, diagramDraft, decisions: detectDecisions(evidence) });
-    if (!draft) { process.stderr.write(`Suggestion "${id}" has no draft template yet.\n`); process.exit(2); }
-    if (args.withLlm) {
-      const llm = pickLlmClient({ withLlm: true });
-      draft = await enhanceWithLlm(draft, suggestion, { report, diagramDraft, decisions: detectDecisions(evidence), llm });
-    }
-    if (args.command === "draft") {
-      if (args.output) {
-        const out = resolve(args.output);
-        mkdirSync(dirname(out), { recursive: true });
-        writeFileSync(out, draft.content, "utf8");
-        process.stderr.write(`Wrote ${out}\n`);
-      } else {
-        process.stdout.write(`# ${draft.filename}\n\n${draft.content}`);
-      }
+  const draftable = report.suggestions.filter((s) => s.draftAvailable).length;
+  process.stdout.write(`\n${report.suggestions.length} suggestions (${draftable} draftable). Full report:\n  ${reportPath}\n`);
+  process.stdout.write(`\nNext: tucaken-signal apply .   (pick a draftable suggestion to write in)\n\n`);
+}
+
+async function runApply(args: ReturnType<typeof parseArgs>, root: string): Promise<void> {
+  // Re-run analysis to get live suggestions (the report is for humans; the
+  // live run is the source of truth for IDs + draft generation).
+  const { report, evidence, diagramDraft } = await analyze({
+    root, stage: args.stage, archetype: args.archetype, withGithub: args.withGithub,
+  });
+
+  const draftables = report.suggestions.filter((s) => s.draftAvailable);
+
+  // No id given → list draftable suggestions and stop.
+  if (!args.suggestionId) {
+    if (!draftables.length) {
+      process.stdout.write("No draftable suggestions for this repo.\n");
+      maybePointToReport(root);
       return;
     }
-    const applied = await applyDraft({ repoRoot: root, draft, branch: args.branch, commit: !args.noCommit });
-    process.stderr.write(`Wrote ${applied.writtenPath}\n`);
-    if (applied.branchCreated) process.stderr.write(`Created branch ${applied.branchCreated}\n`);
-    if (applied.committed) process.stderr.write(`Committed.\n`);
+    process.stdout.write("\nDraftable suggestions:\n\n");
+    draftables.forEach((s) => {
+      process.stdout.write(`  ${s.id}\n    ${s.title}\n`);
+    });
+    process.stdout.write(`\nPreview one:  tucaken-signal apply . --id=<id> --dry-run\n`);
+    process.stdout.write(`Write one:    tucaken-signal apply . --id=<id> [--branch=name] [--no-commit]\n\n`);
     return;
   }
 
-  if (args.format === "json") process.stdout.write(renderJson(report) + "\n");
-  else if (args.format === "md") process.stdout.write(renderMarkdown(report) + "\n");
-  else process.stdout.write(renderTerminal(report));
+  const suggestion = report.suggestions.find((s) => s.id === args.suggestionId);
+  if (!suggestion) {
+    process.stderr.write(`No suggestion with id "${args.suggestionId}". Run \`tucaken-signal apply .\` to list draftable ids.\n`);
+    process.exit(2);
+  }
+
+  let draft = generateDraft(suggestion, { report, diagramDraft, decisions: detectDecisions(evidence) });
+  if (!draft) {
+    process.stderr.write(`Suggestion "${args.suggestionId}" has no draft template.\n`);
+    process.exit(2);
+  }
+
+  if (args.withLlm) {
+    const llm = pickLlmClient({ withLlm: true });
+    draft = await enhanceWithLlm(draft, suggestion, { report, diagramDraft, decisions: detectDecisions(evidence), llm });
+  }
+
+  // --dry-run → preview only (folds in the old `draft` command).
+  if (args.dryRun) {
+    process.stdout.write(`# ${draft.filename}\n\n${draft.content}\n`);
+    process.stderr.write(`\n(dry-run — nothing written. Drop --dry-run to write this into the repo.)\n`);
+    return;
+  }
+
+  const applied = await applyDraft({ repoRoot: root, draft, branch: args.branch, commit: !args.noCommit });
+  process.stderr.write(`Wrote ${applied.writtenPath}\n`);
+  if (applied.branchCreated) process.stderr.write(`Created branch ${applied.branchCreated}\n`);
+  if (applied.committed) process.stderr.write(`Committed.\n`);
+}
+
+function maybePointToReport(root: string): void {
+  const dir = join(root, REPORTS_DIR);
+  try {
+    const latest = readdirSync(dir).filter((f) => f.endsWith(".md")).sort().pop();
+    if (latest) process.stdout.write(`See the full report: ${join(dir, latest)}\n`);
+  } catch {/* no reports yet */}
 }
 
 function printHelp(): void {
   process.stdout.write(`tucaken-signal — portfolio trust-signal analyzer
 
-Usage:
-  tucaken-signal [path]                              analyze cwd or path
-  tucaken-signal preview [path] [--animate]          55-second recruiter preview
-  tucaken-signal compare-stages [path]               same repo across junior/mid/senior/staff
-  tucaken-signal draft <id> [--output=p] [--with-llm]   generate accept-ready content
-  tucaken-signal apply <id> [--branch=b] [--no-commit]  write draft into the repo (optional branch + commit)
-  tucaken-signal ontology                            show loaded ontology
-  tucaken-signal config get|set|unset [key] [value]  manage ~/.tucaken/config.json
-  tucaken-signal telemetry opt-in|opt-out|status     manage anonymous telemetry (default: opt-out)
+Two-step workflow (mirrors kb-discovery → kb-doc):
+
+  tucaken-signal scan [path]     Scan the repo, write a full report to
+                                 .tucaken-signal/reports/<date>-<repo>.md
+                                 (read-only — never modifies your repo).
+                                 Report includes: pillar scores, the
+                                 55-second recruiter preview, a stage
+                                 comparison, every suggestion with its id,
+                                 and anticipated interview questions.
+                                 Bare \`tucaken-signal [path]\` does this too.
+
+  tucaken-signal apply [path]    Read the suggestions, write one in.
+                                 No --id → lists draftable suggestion ids.
+                                 --id=<id> --dry-run → preview the draft.
+                                 --id=<id> → write it into the repo.
 
 Flags:
-  --stage=junior|mid|senior|staff                    override inferred stage
-  --archetype=<id>                                   override classifier
-  --format=terminal|json|md                          output format
-  --with-llm                                         enable LLM enhancement (BYOK ANTHROPIC_API_KEY or IDE bridge)
-  --yes, -y                                          accept low-confidence inferred stage
-  --verbose
+  --stage=junior|mid|senior|staff   lock the target stage (skips the gate)
+  --archetype=<id>                  override the classifier
+  --with-github                     opt-in GitHub signals (BYOK GITHUB_TOKEN)
+  --with-llm                        opt-in LLM-enhanced drafts (apply only)
+  --branch=<name>                   apply on a new branch
+  --no-commit                       apply without committing
+  --yes                             accept low-confidence inferred stage
+
+Housekeeping:
+  tucaken-signal config get|set|unset [key] [value]
+  tucaken-signal telemetry opt-in|opt-out|status
+  tucaken-signal ontology
 `);
 }
 

@@ -1,310 +1,168 @@
 ---
 name: tucaken-signal
 description: |
-  Analyze the current repository's portfolio trust-signal quality for hiring
-  contexts. Generates evidence-grounded improvements calibrated to your target
-  career stage (junior/mid/senior/staff), and can draft + apply the
-  recommended changes. Optimized for the 2026 hiring market where AI-generated
+  Analyze a repository's portfolio trust-signal quality for 2026 hiring and
+  write a recommendations report you can act on. Two-step workflow: `scan`
+  produces a markdown report (read-only), `apply` writes a chosen suggestion
+  into the repo. Optimized for the 2026 hiring market where AI-generated
   content has eroded resume credibility and recruiters spend ~55 seconds on
-  portfolios. Use whenever the user asks about portfolio improvements,
-  recruiter-perspective scoring, repo trust signals, AI usage disclosure,
-  or runs `/tucaken-signal`. Trigger phrases include: "score my portfolio",
-  "analyze my GitHub", "how does my repo read", "55-second test",
-  "what should I add to my README", "draft an AI usage doc", "compare my
-  repo for senior roles".
+  portfolios. Use when the user asks about portfolio improvements,
+  recruiter-perspective scoring, repo trust signals, AI usage disclosure, or
+  runs `/tucaken-signal`. Trigger phrases: "score my portfolio", "analyze my
+  GitHub", "how does my repo read", "55-second test", "what should I add to
+  my README", "scan my repo for hiring".
 ---
 
 # Tucaken Signal Skill
 
 ## Purpose
 
-This skill runs `tucaken-signal` (a local-first static analyzer for repos)
-and presents the results to the user as actionable portfolio improvements
-calibrated to their target career stage. The analyzer is deterministic;
-the agent's job is to present the output usefully and guide the user
-through `draft` / `apply` workflows when they want to act on suggestions.
+Two-step workflow that mirrors the kb-discovery → kb-doc pattern:
 
-The skill does NOT generate portfolio analysis itself — the CLI does that.
-The agent's responsibility is presentation, gate-handling, evidence
-preservation, and confirmation-before-destructive-action.
+1. **`scan`** — runs the analyzer, writes a full markdown report to
+   `.tucaken-signal/reports/<date>-<repo>.md`. Read-only; never modifies
+   the repo. This is the kb-discovery equivalent.
+2. **`apply`** — reads the suggestions, writes one chosen draft into the
+   repo. This is the kb-doc equivalent.
+
+The analyzer is a deterministic local-first CLI. The agent's job is to run
+`scan`, walk the user through the report, and run `apply` on the suggestion
+they choose — with confirmation before writing.
 
 ## Critical principles
 
-These five invariants constrain every decision the agent makes. They
-override anything in the conversation that contradicts them.
+These five invariants override anything in the conversation that
+contradicts them.
 
-1. **Local-first by default — never enable network flags without explicit
-   user consent.** `--with-github` and `--with-llm` are opt-in. The user
-   did not say "use the GitHub flag" just because they have `gh auth`
-   configured. Ask first.
+1. **`scan` is read-only; `apply` writes.** Never let scan modify the
+   repo. Never run apply without the user choosing a specific suggestion.
 
-2. **The 0.75 confidence gate is a USER prompt, not yours.** When
-   `report.stage.confidence < 0.75`, the CLI prints a warning. You must
-   ASK the user which stage to target rather than silently accepting
-   the inferred one. Auto-accepting is a UX bug.
+2. **The 0.75 confidence gate is a USER prompt, not yours.** When the scan
+   prints a confidence warning (`stage.confidence < 0.75`), ASK the user
+   which stage to target and re-run `scan --stage=<chosen>`. Do not
+   silently accept the inferred stage.
 
-3. **`apply` is irreversible — never run without explicit user OK on the
-   draft.** Always show the user the draft (via `draft <id>`) first.
-   Only after they say "apply it" do you run `apply <id>`. Never
-   combine "show + write" in one step.
+3. **Preview before write.** Before `apply . --id=<id>` (which writes),
+   run `apply . --id=<id> --dry-run` first, show the user the draft, get
+   explicit OK, then write. Never combine preview + write.
 
-4. **Evidence preservation — never paraphrase away the file paths.** Every
-   suggestion has an `evidenceBasis` array with real file paths. Cite
-   them verbatim when presenting. Do not summarise "your repo shows X"
+4. **Evidence preservation.** Suggestions carry real file paths. Quote
+   them verbatim from the report; never paraphrase "your repo shows X"
    without naming the path.
 
-5. **Suggestion IDs are real strings, not inventions.** When you reference
-   a suggestion by ID (for `draft <id>` or in a list), it must be a real
-   ID from `report.suggestions[].id`. Never fabricate an ID that looks
-   like one.
+5. **Local-first.** `--with-github` and `--with-llm` are opt-in. Don't
+   add them unless the user explicitly asks.
 
 ## When to use this skill
 
-**Trigger phrases (any of these activates):**
-- `/tucaken-signal` (slash invocation)
+**Trigger phrases:**
+- `/tucaken-signal`
 - "score my portfolio" / "analyze my GitHub" / "how does my repo read"
-- "what should I add to my README" / "what's missing"
-- "recruiter-perspective" / "55-second test" / "recruiter scan"
-- "compare my repo for senior roles" / "stage compare"
-- "draft an AI usage doc" / "AI_USAGE.md" / "AI disclosure"
-- "is my portfolio ready for hiring"
+- "scan my repo for hiring" / "what should I add to my README"
+- "55-second test" / "recruiter scan"
 
 **Do NOT trigger when:**
-- The user asks general resume advice with no specific repo in context
-- The user asks about Tucaken (the resume platform) rather than this skill
-- The user wants documentation of their code (that's kb-doc, not this)
-- The user wants codebase discovery (that's kb-discovery, not this)
+- The user wants documentation of their code (that's kb-doc)
+- The user wants codebase discovery for docs (that's kb-discovery)
+- The user asks general resume advice with no repo in context
 
 ## When NOT to claim this skill handles something
 
-This skill is a portfolio scoring + recommendation tool. It does NOT:
-- Generate resumes or cover letters (out of scope; v2 candidate)
-- Fix bugs in user code
-- Refactor the user's repo
-- Run CI / deploy / merge anything
-- Score private GitHub repos with full GitHub-API signal (returns 0 stars
-  by design on private repos — see `validation/research/structured-inquiries-2026.md`)
+Does NOT: generate resumes/cover letters, fix bugs, refactor, run CI/deploy,
+or score private repos with full GitHub-API signal (private repos return 0
+stars by design). If asked, redirect to what it does do.
 
-If asked for any of these, redirect: "Tucaken Signal won't do X, but it
-can do Y which is adjacent."
+## The workflow
 
-## Output conventions
-
-When the user asks for a "report" or wants to track progress over time,
-save the markdown output to:
-
-```
-.claude/skills/tucaken-signal/reports/<YYYY-MM-DD>-<repo-name>.md
-```
-
-Where `<repo-name>` is the basename of the repo path. This creates a
-historical record the user can diff over time (re-run in 3 months → diff
-against last run → see what they actually improved). Matches the
-kb-discovery convention.
-
-For one-off analysis (no "report" or "save" language from user), present
-results in chat directly without saving a file.
-
-## Execution: six passes
-
-Each pass produces a specific output the next consumes. Do not skip
-passes; do not run them out of order.
-
-### Pass 1 — Determine target career stage (with gate handling)
+### Step 1 — Scan
 
 ```bash
-tucaken-signal --format=json
+tucaken-signal scan <path>
 ```
 
-Read `report.stage.id`, `report.stage.confidence`, `report.stage.explanation`.
+(Bare `tucaken-signal <path>` does the same — `scan` is the default.)
 
-**Branch:**
-- If `confidence >= 0.75` → proceed with inferred stage. Tell the user
-  what was inferred and why ("I inferred `senior` from: ADRs present;
-  IaC; sustained commit history. Tell me if you want a different
-  target.")
-- If `confidence < 0.75` → STOP. Ask the user: "Confidence is only
-  [X]. I see signals consistent with `[inferred]` but want to confirm —
-  are you targeting junior, mid, senior, or staff roles?" Re-run with
-  `--stage=<chosen>`.
+This writes `.tucaken-signal/reports/<date>-<repo>.md` and prints a short
+terminal summary. Read the report file — it contains everything:
 
-### Pass 2 — Run full analysis
+- archetype + stage + confidence
+- 5 pillar scores
+- the 55-second recruiter preview
+- a stage comparison table (junior/mid/senior/staff)
+- every suggestion with its `id`, evidence paths, and `draftable` flag
+- anticipated interview questions
 
-After stage is locked:
+**Gate handling:** if the summary shows a confidence warning, STOP and ask
+the user their target stage, then re-run `scan --stage=<chosen>`.
+
+### Step 2 — Present the report
+
+Read the generated `.md` and present to the user:
+
+1. Overall score + the most load-bearing pillar gap (lowest-scoring pillar)
+2. The recruiter-glance visible/invisible lists (quote verbatim — most
+   user-resonant section)
+3. Top 5 suggestions with their ids + evidence paths
+4. Point them at the full report file for the rest
+
+Use `templates/report-walkthrough.md` for the structure.
+
+### Step 3 — Apply (only if the user wants to act)
+
+List draftable suggestions:
 
 ```bash
-tucaken-signal --format=json --stage=<target>
+tucaken-signal apply <path>
 ```
 
-Parse the full `TrustSignalReport`. Capture the fields you'll need
-for later passes:
-- `archetype.id`, `archetype.confidence`
-- `pillars[]` (5 entries: authenticity, readability, system_thinking, production_reality, stage_calibration)
-- `overallScore`
-- `recruiterGlance.visible` / `recruiterGlance.invisible`
-- `suggestions[]` (top 15, ranked by `combinedRank` descending)
-- `anticipatedQuestions[]`
-- `stage.{id, inferred, confidence, explanation}`
+Preview a specific one (this does NOT write):
 
-### Pass 3 — Present pillar breakdown
+```bash
+tucaken-signal apply <path> --id=<id> --dry-run
+```
 
-Use `templates/score-presentation.md` as the structure. Always include:
+Show the user the draft. Get explicit OK. Then write:
 
-- Archetype + confidence
-- Stage + how it was set (inferred or user-specified)
-- Overall score with the bar visualization
-- Each pillar's score + the most load-bearing note (first item in
-  `notes[]`)
+```bash
+tucaken-signal apply <path> --id=<id> --branch=docs/signal-improvements
+```
 
-If a pillar score is below 30, surface this prominently — it's the gap
-that will dominate the recommendations.
-
-### Pass 4 — Present recruiter-glance
-
-Use `templates/recruiter-glance.md` as the structure. Always include:
-- The `recruiterGlance.visible` items (what surfaces in 55 seconds)
-- The `recruiterGlance.invisible` items (what depth is hidden)
-
-This is the most user-resonant section. Quote verbatim, don't
-paraphrase the visible/invisible lists.
-
-### Pass 5 — Present top suggestions
-
-Use `templates/suggestion-walkthrough.md` as the structure. Present
-the top 5 from `report.suggestions[]` (already sorted by
-`combinedRank`). For each:
-
-- Title
-- One-line description
-- Pillar + evidence path (verbatim from `evidenceBasis`)
-- Whether `draftAvailable` is true → mention the user can run
-  `tucaken-signal draft <id>` to see proposed content
-
-### Pass 6 — Offer next actions
-
-Concrete next-step options for the user:
-
-1. "Run `tucaken-signal preview` for the literal 55-second simulation."
-2. "Run `tucaken-signal compare-stages` to see how this repo scores
-   for other levels."
-3. "Pick one suggestion to draft — I'll run `tucaken-signal draft <id>`
-   and show you the proposed content."
-4. If 2-3 `anticipatedQuestions` exist with non-null `documentedHere`
-   → "Want to walk through how to answer these in your README?"
-
-If the user picks #3, follow `templates/draft-confirmation.md` for
-the confirmation flow before any `apply`.
+Use `templates/apply-confirmation.md` for the confirm-before-write flow.
 
 ## Optional augmentations (opt-in only)
 
-**`--with-github` (BYOK GitHub signals):**
-- Activate only if the user explicitly says "use GitHub signals" or
-  "with GitHub" or similar
-- Confirms an opt-in token: requires `GITHUB_TOKEN` env or
-  `gh auth status` to confirm token is available
-- Note clearly to user: "I'll fetch contributor count, stars, and
-  release cadence from api.github.com directly. Tucaken is not in the
-  path."
-- On private repos: GitHub will return 0 stars / few contributors;
-  the analyzer falls back to static thresholds (this is correct
-  behaviour, not a bug — see the `--with-github` guard in
-  StageInferenceEngine.ts)
+- **`--with-github`** — BYOK GitHub signals (contributor count, stars,
+  releases) for sharper stage inference. Only if user asks. Goes direct to
+  api.github.com; Tucaken not in the path. Private repos return limited
+  signal (correct, not a bug).
+- **`--with-llm`** — BYOK LLM-enhanced drafts on `apply`. Only when the
+  user wants richer prose than the deterministic template.
 
-**`--with-llm` (BYOK LLM for richer drafts):**
-- Activate only when the user has chosen a specific suggestion to
-  draft AND wants enhanced prose
-- Two paths the CLI tries: BYOK Anthropic API (uses
-  `ANTHROPIC_API_KEY`), or IDE bridge (uses `TUCAKEN_IDE_BRIDGE=1`)
-- If neither configured, fall back to the deterministic template (no
-  LLM call) — the draft is still useful, just less polished
+## Validation checklist before responding
 
-## Validation checklist before responding to the user
+- [ ] Did I quote actual values from the report (not invented)?
+- [ ] If confidence < 0.75, did I ASK the stage rather than accept inferred?
+- [ ] Are suggestion ids I mention real (from the report)?
+- [ ] Are evidence paths cited verbatim?
+- [ ] Before any write, did I `--dry-run` and get explicit OK?
+- [ ] Did I avoid `--with-github` / `--with-llm` unless asked?
 
-Run this mentally before sending any user-facing message:
+## Privacy posture (load-bearing)
 
-- [ ] Did I quote actual values from `report` (not invented stats)?
-- [ ] If `report.stage.confidence < 0.75`, did I ASK the user the
-      stage rather than accepting inferred?
-- [ ] Are all suggestion IDs I mentioned real (present in
-      `report.suggestions[].id`)?
-- [ ] Are the evidence file paths I cited from `evidenceBasis`
-      (not hallucinated)?
-- [ ] If I'm about to suggest `apply`, did I show the draft first
-      and get explicit user OK?
-- [ ] If I used `--with-github`, did the user explicitly enable it?
-- [ ] If I used `--with-llm`, did the user explicitly enable it?
-- [ ] Did I avoid claiming the skill does something it doesn't
-      (resume generation, code refactoring, etc.)?
-
-If any answer is NO, stop and fix before responding.
-
-## MCP server (alternative to shelling out to the CLI)
-
-The companion `@tucaken/signal-mcp` server exposes two tools to host
-agents over stdio (Claude Code, Cursor, Codex CLI):
-
-- `analyze_local_repo({ path, stage? })` — runs the same `analyze()`
-  function the CLI uses; returns the structured `TrustSignalReport`.
-  No subprocess, no JSON re-parsing.
-- `get_user_ontology_version()` — returns the pinned ontology version
-  so the host knows which rule set produced the report.
-
-When the MCP server is wired into the host agent, prefer it over
-`tucaken-signal --format=json` shell-out — tighter coupling, typed
-responses, no subprocess overhead.
-
-Install:
-
-```bash
-claude mcp add tucaken-signal npx -y @tucaken/signal-mcp
-```
-
-Neither tool requires authentication. Tucaken Signal is a standalone
-analyzer, not a client of the Tucaken platform.
-
-## Privacy posture (load-bearing — do not violate)
-
-- **Local-first by default.** No network calls without explicit user
-  action.
-- **Raw code is never sent to Tucaken servers** — even in
-  authenticated mode, only structured suggestions + evidence file
-  paths + snippet excerpts ≤200 chars cross the wire.
-- **Telemetry is opt-in** (`telemetry opt-in`), anonymous, never
-  includes paths or content.
-- **LLM draft generation** requires `--with-llm` AND either an API
-  key or the IDE bridge flag — never on by default.
-
-If the user is on a sensitive codebase, prefer `draft` (writes to
-stdout or a path you choose) over `apply` (writes inside the repo).
-Never push to a remote.
+- Local-first by default. No network without explicit user action.
+- `scan` only reads; `apply` only writes the chosen draft. Never pushes
+  to a remote.
+- Telemetry opt-in, anonymous, no paths/content.
 
 ## Templates
 
-Templates are bundled in the `templates/` directory alongside this
-skill:
-
-- `templates/score-presentation.md` — Pass 3 structure
-- `templates/recruiter-glance.md` — Pass 4 structure
-- `templates/suggestion-walkthrough.md` — Pass 5 structure
-- `templates/draft-confirmation.md` — confirm-before-apply flow
-
-Read the relevant template before producing output. The templates
-define the exact structure each pass should follow. Consistency
-beats flexibility for this kind of presentation work — the user
-should be able to predict the shape of the output regardless of
-which agent runs it.
+- `templates/report-walkthrough.md` — how to present the scan report
+- `templates/apply-confirmation.md` — confirm-before-write flow
 
 ## Common failure modes to avoid
 
-1. **Silently accepting low-confidence stage inference.** Always ask
-   when below 0.75.
-2. **Hallucinating suggestion IDs.** Cross-check against the JSON.
-3. **Running `apply` without showing the draft first.** Always
-   two-step.
-4. **Treating `--with-github` as default.** Always opt-in.
-5. **Paraphrasing `evidenceBasis` paths.** Cite verbatim.
-6. **Confusing this with kb-doc or kb-discovery.** This is portfolio
-   scoring, not documentation generation or candidate discovery.
-7. **Inventing pillar names or pillar scores.** There are exactly 5:
-   authenticity, readability, system_thinking, production_reality,
-   stage_calibration.
+1. Running `apply` without `--dry-run` first.
+2. Silently accepting low-confidence stage (always ask).
+3. Hallucinating suggestion ids (cross-check the report).
+4. Treating `--with-github` as default (it's opt-in).
+5. Confusing this with kb-doc / kb-discovery (different skills).

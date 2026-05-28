@@ -2,6 +2,7 @@ import type { ArchetypeDef, PillarId, StageDef } from "@tucaken/ontology";
 import type { EvidenceMap, PillarScore, Suggestion } from "../types.js";
 import type { DetectedDecision } from "../analyzers/system_thinking/DecisionDetector.js";
 import type { AiUsageResult } from "../analyzers/authenticity/AiUsageAnalyzer.js";
+import type { ArchitectureResult } from "../analyzers/system_thinking/ArchitectureAnalyzer.js";
 
 export interface SuggestionInputs {
   evidence: EvidenceMap;
@@ -10,12 +11,46 @@ export interface SuggestionInputs {
   pillarScores: PillarScore[];
   decisions: DetectedDecision[];
   aiUsage: AiUsageResult;
+  architecture: ArchitectureResult;
+}
+
+/**
+ * Maps a gap note to a draftable suggestion key + whether a draft can
+ * actually be generated right now. The key's last `.`-segment must match a
+ * handler in DraftGenerator.generateDraft so the scan→apply handoff works.
+ */
+function gapDraftMapping(
+  note: string,
+  ctx: { hasDiagram: boolean; decisionsCount: number; archetype: string }
+): { key: string; draftable: boolean } | null {
+  const n = note.toLowerCase();
+  if (n.includes("architecture diagram")) {
+    return { key: "no_architecture_diagram", draftable: true }; // arch doc always draftable (stub diagram)
+  }
+  if (n.includes("adr")) {
+    return { key: "adr_for_decisions", draftable: ctx.decisionsCount > 0 };
+  }
+  if (n.includes("ai_usage") || n.includes("ai usage")) {
+    return { key: "ai_usage_doc", draftable: true };
+  }
+  if (n.includes("demo link") || n.includes("live url")) {
+    return { key: "deployment_proof", draftable: true };
+  }
+  if (n.includes("usage") && ctx.archetype === "open_source_library") {
+    return { key: "add_usage_example", draftable: true };
+  }
+  return null;
 }
 
 export function generateSuggestions({
   evidence, archetype, stage, pillarScores, decisions, aiUsage,
 }: SuggestionInputs): Suggestion[] {
   const out: Suggestion[] = [];
+  const gapCtx = {
+    hasDiagram: !!evidence.signals.has_architecture_diagram,
+    decisionsCount: decisions.length,
+    archetype: archetype.id as string,
+  };
 
   for (const tmpl of stage.stage_specific_suggestions) {
     if (!triggerFires(tmpl.trigger, evidence)) continue;
@@ -75,24 +110,29 @@ export function generateSuggestions({
     });
   }
 
-  // Cross-cutting: pillar-score gap suggestions
+  // Cross-cutting: pillar-score gap suggestions.
+  // A gap that maps to a real draft template is marked draftable AND given
+  // an id whose last segment the DraftGenerator recognises — this is what
+  // makes the scan→apply handoff produce something to act on.
   for (const p of pillarScores) {
     if (p.score >= 65) continue;
     const weight = archetype.pillar_weights[p.pillar] ?? 0.2;
     for (const note of p.notes) {
+      const mapping = gapDraftMapping(note, gapCtx);
+      const id = mapping ? `gap.${p.pillar}.${mapping.key}` : `gap.${p.pillar}.${slug(note)}`;
       out.push({
-        id: `gap.${p.pillar}.${slug(note)}`,
+        id,
         pillar: p.pillar,
         category: "thin",
         stageTarget: "any",
         title: capitalize(note),
         description: `Score ${p.score}/100 on ${p.pillar}. Addressing this gap would lift the pillar.`,
         evidenceBasis: [{ kind: "pillar_score", note }],
-        impactScore: pillarGapImpact(p.pillar as PillarId),
+        impactScore: pillarGapImpact(p.pillar),
         effortScore: 0.3,
         pillarWeight: weight,
         combinedRank: round((weight * 0.6) / 0.3),
-        draftAvailable: false,
+        draftAvailable: mapping?.draftable ?? false,
       });
     }
   }

@@ -62,14 +62,28 @@ function scoreProductionReality({ deployment, tutorial, maintenance }: PillarInp
 function scoreSystemThinking({ evidence, density, architecture, decisions }: PillarInputs): PillarScore {
   let s = 0;
   const notes: string[] = [];
+
+  // Documented signals — full credit.
   if (density?.diagramPresent) s += 25; else notes.push("no architecture diagram");
   if (evidence.signals.has_adrs) s += 35; else notes.push("no ADRs");
-  if (architecture.multiService) s += 10;
-  if (architecture.iacTools.length) s += 10;
   if (evidence.files.runbookFiles.length) s += 10;
-  if (decisions.length >= 3 && !evidence.signals.has_adrs) {
-    notes.push(`${decisions.length} undocumented architectural decisions detected`);
+
+  // Latent-evidence credit: architectural judgement that EXISTS in the code
+  // but isn't documented still counts. A repo with a multi-service topology
+  // and detected decisions demonstrates system thinking even with no ADR
+  // file — scoring it 0 would be the tool failing its own thesis.
+  if (architecture.multiService) s += 12;
+  if (architecture.iacTools.length) s += 12;
+  if (decisions.length > 0) {
+    s += Math.min(20, 8 + decisions.length * 4); // detected choices = real judgement
+    if (!evidence.signals.has_adrs) {
+      notes.push(`${decisions.length} architectural decision${decisions.length === 1 ? "" : "s"} detected but undocumented — high-leverage to write up`);
+    }
   }
+  if (evidence.signals.has_multi_package_src && !architecture.multiService) {
+    s += 8; // monorepo structure implies some system decomposition
+  }
+
   return { pillar: "system_thinking", score: clamp(s), notes };
 }
 
@@ -103,9 +117,30 @@ function scoreStageCalibration(_: PillarInputs): PillarScore {
   return { pillar: "stage_calibration", score: 60, notes: ["modulator pillar; see stage comparison in the report"] };
 }
 
-export function applyWeights(scores: PillarScore[], weights: Record<PillarId, number>): number {
+/**
+ * Overall score = pillar scores weighted by archetype, then modulated by the
+ * stage's required pillars. A stage's required pillars get a 1.5× weight bump
+ * (re-normalised) so the same repo scores differently for junior vs staff —
+ * the whole point of stage calibration. Without this, every stage returns
+ * the identical overall and the comparison table looks broken.
+ */
+export function applyWeights(
+  scores: PillarScore[],
+  weights: Record<PillarId, number>,
+  requiredPillars: PillarId[] = []
+): number {
+  const required = new Set(requiredPillars);
+  const effective: Record<string, number> = {};
+  let weightSum = 0;
+  for (const s of scores) {
+    const base = weights[s.pillar] ?? 0;
+    const w = required.has(s.pillar) ? base * 1.5 : base;
+    effective[s.pillar] = w;
+    weightSum += w;
+  }
+  if (weightSum === 0) return 0;
   let total = 0;
-  for (const s of scores) total += s.score * (weights[s.pillar] ?? 0);
+  for (const s of scores) total += s.score * (effective[s.pillar]! / weightSum);
   return Math.round(total);
 }
 

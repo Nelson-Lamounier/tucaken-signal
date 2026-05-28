@@ -47,7 +47,18 @@ export interface TrustSignalReport {
   };
   suggestions: Suggestion[];
   anticipatedQuestions: AnticipatedQuestion[];
+  skillEvidence: SkillEvidenceItem[];
   ontologyVersion: string;
+}
+
+export interface SkillEvidenceItem {
+  name: string;
+  category: string;
+  skillScore: number;
+  recruiterScore: number;
+  priority: number;
+  referencePath: string;
+  documented: boolean;
 }
 
 export interface AnticipatedQuestion {

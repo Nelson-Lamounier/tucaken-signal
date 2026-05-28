@@ -12,6 +12,7 @@ import { analyzeCommitFingerprint } from "./analyzers/authenticity/CommitFingerp
 import { analyzeArchitecture } from "./analyzers/system_thinking/ArchitectureAnalyzer.js";
 import { detectDecisions } from "./analyzers/system_thinking/DecisionDetector.js";
 import { generateAnticipatedQuestions } from "./analyzers/system_thinking/AnticipatedQuestionGenerator.js";
+import { analyzeSkillEvidence } from "./analyzers/SkillEvidenceAnalyzer.js";
 import { analyzeTutorialSignals } from "./analyzers/production_reality/TutorialSignalAnalyzer.js";
 import { analyzeMaintenance } from "./analyzers/production_reality/MaintenanceSignalAnalyzer.js";
 import { applyWeights, computePillarScores } from "./scoring/PillarScores.js";
@@ -72,12 +73,13 @@ export async function analyze(opts: AnalyzeOptions): Promise<AnalyzeResult> {
   const pillars = computePillarScores({
     evidence, fold, density, scan, deployment, aiUsage, commits, architecture, decisions, tutorial, maintenance, humanJudgment,
   });
-  const overall = applyWeights(pillars, archetype.pillar_weights);
+  const overall = applyWeights(pillars, archetype.pillar_weights, stage.required_pillars ?? []);
 
   const suggestions = generateSuggestions({
-    evidence, archetype, stage, pillarScores: pillars, decisions, aiUsage,
+    evidence, archetype, stage, pillarScores: pillars, decisions, aiUsage, architecture,
   });
   const anticipatedQuestions = generateAnticipatedQuestions(evidence, architecture, decisions);
+  const skillEvidence = analyzeSkillEvidence(opts.root, evidence, architecture, decisions).candidates;
 
   const visible: string[] = [];
   if (fold?.hasPitchParagraph) visible.push(`pitch: "${fold.pitch?.slice(0, 80)}"`);
@@ -104,6 +106,7 @@ export async function analyze(opts: AnalyzeOptions): Promise<AnalyzeResult> {
     recruiterGlance: { visible, invisible },
     suggestions,
     anticipatedQuestions,
+    skillEvidence,
     ontologyVersion: ontology.version.version,
   };
 

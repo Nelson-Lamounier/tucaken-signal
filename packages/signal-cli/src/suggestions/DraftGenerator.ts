@@ -37,7 +37,10 @@ export function generateDraft(suggestion: Suggestion, ctx: DraftContext): DraftR
 
   if (id === "ai_usage_doc" || id === "ai_transparency_section") return draftAiUsage(suggestion);
   if (id === "architecture_diagram_missing" || id === "no_architecture_diagram") {
-    return ctx.diagramDraft ? { suggestionId: suggestion.id, filename: "docs/architecture.md", content: archDoc(ctx.diagramDraft) } : null;
+    // Always draftable — fall back to a Mermaid stub when no diagram was
+    // auto-derived, so the scan→apply handoff never dead-ends.
+    const diagram = ctx.diagramDraft ?? STUB_DIAGRAM;
+    return { suggestionId: suggestion.id, filename: "docs/architecture.md", content: archDoc(diagram) };
   }
   if (id === "adr_for_decisions" || id === "adr_backfill" || id === "adr_starter") return draftAdrs(suggestion, ctx);
   if (id === "deployment_proof") return draftDeploymentProof(suggestion);
@@ -80,6 +83,16 @@ ${s.evidenceBasis.map((e) => `- ${e.kind}${e.note ? `: ${e.note}` : ""}`).join("
 `;
   return { suggestionId: s.id, filename: "AI_USAGE.md", content };
 }
+
+const STUB_DIAGRAM = `\`\`\`mermaid
+graph TD
+  A[Client] --> B[Entry point]
+  B --> C[Core logic]
+  C --> D[(Data store)]
+\`\`\`
+
+<!-- Replace the stub above with your actual topology. Nodes should be your
+     real components: services, datastores, queues, external APIs. -->`;
 
 function archDoc(diagram: string): string {
   return `# Architecture

@@ -42,6 +42,12 @@ Full report (stage comparison, all suggestions, interview questions):
 - **Show suggestion ids.** The user needs them for `apply --id=<id>`.
 - **Cite evidence paths.** "Add a diagram" is generic; "Add a diagram —
   evidence: infra/cdk.json" is the differentiator.
+- **Surface the skill-evidence inventory.** The report has a
+  "Skill-evidence inventory" section — the asset-finder lens (what the repo
+  already demonstrates, scored skill × recruiter). Call out the top 2-3
+  high-priority **undocumented** assets — these are the highest-leverage
+  things to write up, the inverse of the gap-finder pillar scores. This is
+  the kb-discovery capability merged into scan.
 - **Point at the report file**, don't paste the whole thing. The stage
   comparison + full suggestion list + interview questions live there.
 

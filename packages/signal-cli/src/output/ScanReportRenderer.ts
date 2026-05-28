@@ -114,6 +114,29 @@ export function renderScanReport(input: ScanReportInput): string {
     o.push("");
   });
 
+  // ---- Skill-evidence inventory (asset-finder lens, merged from kb-discovery) ----
+  if (report.skillEvidence.length) {
+    o.push("## Skill-evidence inventory");
+    o.push("");
+    o.push("What this repo *already demonstrates* — the asset-finder lens. Pillar");
+    o.push("scores above are the gap-finder (what's missing/invisible); this is the");
+    o.push("inverse: latent skill evidence worth surfacing. Scored");
+    o.push("`skill-evidence × recruiter-relevance` (both 1–5).");
+    o.push("");
+    o.push("| Asset | Category | Skill | Recruiter | Priority | Documented | Path |");
+    o.push("|---|---|---|---|---|---|---|");
+    for (const c of report.skillEvidence.slice(0, 12)) {
+      o.push(`| ${c.name} | ${c.category} | ${c.skillScore} | ${c.recruiterScore} | ${c.priority} | ${c.documented ? "yes" : "**no**"} | \`${c.referencePath}\` |`);
+    }
+    o.push("");
+    const undoc = report.skillEvidence.filter((c) => c.priority >= 15 && !c.documented);
+    if (undoc.length) {
+      o.push(`> ${undoc.length} high-value asset${undoc.length === 1 ? "" : "s"} undocumented. ` +
+        `These are the highest-leverage things to write up — real skill evidence a 55-second scan misses.`);
+      o.push("");
+    }
+  }
+
   // ---- Anticipated questions ----
   if (report.anticipatedQuestions.length) {
     o.push("## Anticipated interview questions");

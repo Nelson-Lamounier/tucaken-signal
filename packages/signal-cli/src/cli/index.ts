@@ -17,7 +17,7 @@ import { Telemetry, pickTelemetrySink } from "../telemetry/TelemetryClient.js";
 import { Ontology, type StageId } from "@tucaken/ontology";
 
 const INFERENCE_GATE = 0.75;
-const CLI_VERSION = "0.4.0";
+const CLI_VERSION = "0.5.0";
 const REPORTS_DIR = ".tucaken-signal/reports";
 
 async function main(): Promise<void> {

@@ -56,7 +56,35 @@ const CONCEPT_DIRS: Record<string, string> = {
   domain: "Domain model",
 };
 
-const DECISION_MARKERS = "because|instead of|rather than|we chose|chose .* over|rejected|migrated from|replaced .* with";
+// Comparison-only markers. A bare "because" is explanation, not a decision —
+// requiring an explicit alternative ("X over Y", "instead of") filters
+// incidental prose (and the analyzer's own explanatory comments) and only
+// surfaces genuine tradeoff decisions.
+const DECISION_MARKERS = "instead of|rather than|migrated from|opted for|in favou?r of|chose .{1,40} over|replaced .{1,40} with|prefer(red)? .{1,40} over| over (terraform|ecs|eks|rest|graphql|mongodb|dynamodb|webpack|npm|yarn)";
+
+// Library → recruiter-relevance. Returns 0 for trivial/ubiquitous deps that
+// aren't skill evidence (yaml, dotenv, lodash). Only deps scoring >= 3 are
+// surfaced as tool candidates.
+function depRelevance(name: string): { score: number; label: string } | null {
+  const map: Array<[RegExp, number, string]> = [
+    [/@modelcontextprotocol\/sdk/, 5, "Model Context Protocol SDK"],
+    [/@aws-sdk\//, 5, "AWS SDK"],
+    [/aws-cdk|aws-cdk-lib/, 5, "AWS CDK"],
+    [/web-tree-sitter|tree-sitter/, 4, "Tree-sitter AST parsing"],
+    [/^pg$|postgres|pgvector/, 4, "PostgreSQL"],
+    [/^next$|^react$|^vue$|svelte/, 4, "Frontend framework"],
+    [/fastify|hono|express/, 4, "HTTP framework"],
+    [/simple-git|nodegit/, 3, "Git automation"],
+    [/openai|anthropic|@google\/genai|bedrock/, 5, "LLM SDK"],
+    [/redis|ioredis/, 4, "Redis"],
+    [/zod|valibot/, 3, "Runtime schema validation"],
+    [/gray-matter|remark|unified/, 3, "Markdown processing"],
+    [/vitest|jest|mocha/, 3, "Test framework"],
+    [/prom-client|opentelemetry|@sentry/, 4, "Observability"],
+  ];
+  for (const [re, score, label] of map) if (re.test(name)) return { score, label };
+  return null;
+}
 
 export function analyzeSkillEvidence(
   root: string,
@@ -179,18 +207,40 @@ export function analyzeSkillEvidence(
         if (!isDir(subPath)) continue;
         const concept = CONCEPT_DIRS[sub.toLowerCase()];
         if (!concept) continue;
-        if (countSourceFiles(subPath) < 2) continue; // needs substance
+        const fileCount = countSourceFiles(subPath);
+        if (fileCount < 2) continue; // needs substance
+        // Quality: name the concept by its primary exported symbol when one
+        // stands out, e.g. "Analysis pipeline (RepoClassifier)" instead of
+        // the generic directory label.
+        const primary = primaryExport(subPath);
+        const label = primary ? `${concept} — ${primary}` : concept;
         candidates.push({
-          name: `${concept} (${pkg})`,
+          name: `${label} (${pkg})`,
           category: "concept",
-          skillScore: 4,
+          skillScore: fileCount >= 5 ? 5 : 4, // larger subsystem = stronger evidence
           recruiterScore: 4,
-          priority: 16,
+          priority: (fileCount >= 5 ? 5 : 4) * 4,
           referencePath: `${dir}/${pkg}/src/${sub}`,
           documented: hasDocsTree,
         });
       }
     }
+  }
+
+  // ---- Dependency-based tool evidence (quality pass) ----
+  // Reads actual package.json dependencies — the accurate way to surface
+  // "library X is used". Deterministic: it cannot list a lib that isn't
+  // installed (unlike spec-based guessing, which hallucinates).
+  for (const tool of dependencyTools(root)) {
+    candidates.push({
+      name: tool.label,
+      category: "tool",
+      skillScore: 4,
+      recruiterScore: tool.score,
+      priority: 4 * tool.score,
+      referencePath: tool.path,
+      documented: hasDocsTree,
+    });
   }
 
   // ---- Methodology / validation assets (Option B) ----
@@ -258,6 +308,59 @@ function readPkgDescription(pkgDir: string): string | null {
   } catch {
     return null;
   }
+}
+
+interface DepTool { label: string; score: number; path: string }
+
+/** Surfaces notable libraries from every package.json's dependencies. */
+function dependencyTools(root: string): DepTool[] {
+  const found = new Map<string, DepTool>();
+  const manifests = [join(root, "package.json"), ...PKG_DIRS.flatMap((d) => {
+    const abs = join(root, d);
+    return existsSync(abs) ? safeList(abs).map((p) => join(abs, p, "package.json")) : [];
+  })];
+  for (const manifest of manifests) {
+    if (!existsSync(manifest)) continue;
+    let deps: Record<string, string> = {};
+    try {
+      const pkg = JSON.parse(readFileSync(manifest, "utf8")) as {
+        dependencies?: Record<string, string>; devDependencies?: Record<string, string>;
+      };
+      deps = { ...pkg.dependencies, ...pkg.devDependencies };
+    } catch { continue; }
+    for (const name of Object.keys(deps)) {
+      if (name.startsWith("@tucaken/")) continue; // internal workspace deps
+      const rel = depRelevance(name);
+      if (!rel || rel.score < 3) continue;
+      // Keep the highest-scoring instance of each label.
+      const existing = found.get(rel.label);
+      if (!existing || rel.score > existing.score) {
+        found.set(rel.label, { label: rel.label, score: rel.score, path: relManifest(root, manifest) });
+      }
+    }
+  }
+  return [...found.values()];
+}
+
+function relManifest(root: string, manifest: string): string {
+  return manifest.replace(root + "/", "").replace("/package.json", "") || "package.json";
+}
+
+/** Reads a concept dir for its primary exported class/function name. */
+function primaryExport(dir: string): string | null {
+  const classNames: string[] = [];
+  const fnNames: string[] = [];
+  for (const f of safeList(dir)) {
+    if (!/\.(ts|js)$/.test(f) || /\.(test|spec|d)\./.test(f)) continue;
+    let content = "";
+    try { content = readFileSync(join(dir, f), "utf8"); } catch { continue; }
+    for (const m of content.matchAll(/export\s+(?:abstract\s+)?class\s+([A-Z]\w+)/g)) classNames.push(m[1]!);
+    for (const m of content.matchAll(/export\s+(?:async\s+)?function\s+([a-z]\w+)/g)) fnNames.push(m[1]!);
+  }
+  // Prefer a class name (concepts are usually classes); else a notable fn.
+  if (classNames.length) return classNames[0]!;
+  if (fnNames.length === 1) return fnNames[0]!;
+  return null;
 }
 
 function countSourceFiles(dir: string): number {
